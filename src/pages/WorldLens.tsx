@@ -32,6 +32,15 @@ const WorldLens = () => {
     
     setIsProcessing(true)
     try {
+      // Test API connection first
+      console.log('Testing API connection before analysis...')
+      const connectionTest = await aiService.testConnection()
+      if (!connectionTest) {
+        setOverlayText('API connection failed. Check your internet connection.')
+        setTimeout(() => setOverlayText(''), 3000)
+        return
+      }
+      
       let prompt = ''
       
       switch (mode) {

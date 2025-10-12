@@ -2,6 +2,23 @@ const OPENROUTER_API_KEY = (import.meta as any).env.VITE_OPENROUTER_API_KEY || '
 const OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1'
 
 export class AIService {
+  // Test if API is working
+  async testConnection() {
+    try {
+      console.log('Testing API connection...')
+      const response = await this.makeRequest('/chat/completions', {
+        model: 'google/gemini-flash-1.5',
+        messages: [{ role: 'user', content: 'Hello, just testing connection' }],
+        max_tokens: 10
+      })
+      console.log('API test successful:', response)
+      return true
+    } catch (error) {
+      console.error('API test failed:', error)
+      return false
+    }
+  }
+
   private async makeRequest(endpoint: string, data: any) {
     console.log('AIService - Making request to:', `${OPENROUTER_BASE_URL}${endpoint}`)
     console.log('AIService - Request data:', JSON.stringify(data, null, 2))
