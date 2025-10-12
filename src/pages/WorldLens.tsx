@@ -33,13 +33,14 @@ const WorldLens = () => {
     setIsProcessing(true)
     try {
       // Test API connection first
-      console.log('Testing API connection before analysis...')
+      setOverlayText('Testing API connection...')
       const connectionTest = await aiService.testConnection()
       if (!connectionTest) {
-        setOverlayText('API connection failed. Check your internet connection.')
-        setTimeout(() => setOverlayText(''), 3000)
+        setOverlayText('X API connection failed. Check internet connection.')
+        setTimeout(() => setOverlayText(''), 5000)
         return
       }
+      setOverlayText('✓ API connected. Analyzing image...')
       
       let prompt = ''
       
@@ -70,13 +71,25 @@ const WorldLens = () => {
       setTimeout(() => setOverlayText(''), 5000)
     } catch (error) {
       console.error('WorldLens - AI analysis error details:', error)
-      console.error('WorldLens - Error message:', error instanceof Error ? error.message : 'Unknown error')
-      console.error('WorldLens - Error stack:', error instanceof Error ? error.stack : 'No stack trace')
       
-      // Show more specific error message
-      const errorMsg = (error instanceof Error && error.message?.includes('API')) ? 'API connection failed' : 'Analysis failed. Please try again.'
+      // Show detailed error in UI for mobile debugging
+      let errorMsg = 'X Analysis failed'
+      if (error instanceof Error) {
+        if (error.message.includes('401')) {
+          errorMsg = 'X API key invalid or expired'
+        } else if (error.message.includes('403')) {
+          errorMsg = 'X API access forbidden - check credits'
+        } else if (error.message.includes('429')) {
+          errorMsg = 'X Rate limit exceeded - try again later'
+        } else if (error.message.includes('network') || error.message.includes('fetch')) {
+          errorMsg = 'X Network error - check internet'
+        } else {
+          errorMsg = `X Error: ${error.message.substring(0, 100)}`
+        }
+      }
+      
       setOverlayText(errorMsg)
-      setTimeout(() => setOverlayText(''), 3000)
+      setTimeout(() => setOverlayText(''), 8000)
     } finally {
       setIsProcessing(false)
     }
