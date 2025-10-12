@@ -61,11 +61,11 @@ const WorldLens = () => {
       setTimeout(() => setOverlayText(''), 5000)
     } catch (error) {
       console.error('WorldLens - AI analysis error details:', error)
-      console.error('WorldLens - Error message:', error.message)
-      console.error('WorldLens - Error stack:', error.stack)
+      console.error('WorldLens - Error message:', error instanceof Error ? error.message : 'Unknown error')
+      console.error('WorldLens - Error stack:', error instanceof Error ? error.stack : 'No stack trace')
       
       // Show more specific error message
-      const errorMsg = error.message?.includes('API') ? 'API connection failed' : 'Analysis failed. Please try again.'
+      const errorMsg = (error instanceof Error && error.message?.includes('API')) ? 'API connection failed' : 'Analysis failed. Please try again.'
       setOverlayText(errorMsg)
       setTimeout(() => setOverlayText(''), 3000)
     } finally {
