@@ -70,9 +70,6 @@ Return JSON format:
     occasion: string, 
     weather?: any
   ): Promise<OutfitAnalysis> {
-    const temp = weather?.temperature || 25
-    const location = weather?.location || 'Unknown'
-    
     try {
       const response = await this.aiService.generateOutfitRecommendation(wardrobeItems, weather, occasion)
       const result = response.choices?.[0]?.message?.content || '{}'
