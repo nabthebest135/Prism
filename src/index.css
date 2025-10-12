@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @layer base {
   * {
@@ -10,8 +10,11 @@
   }
   
   body {
-    @apply bg-white text-gray-900 font-sans;
+    @apply bg-gradient-to-br from-slate-50 to-blue-50 text-gray-800;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   
   html, body, #root {
@@ -30,13 +33,46 @@
   }
   
   .ar-text-overlay {
-    @apply bg-black/70 text-white px-3 py-2 rounded-lg backdrop-blur-sm;
+    @apply bg-white/95 text-gray-800 px-4 py-3 rounded-2xl backdrop-blur-md shadow-lg border border-white/50;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   }
   
   .lens-button {
-    @apply w-16 h-16 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white;
+    @apply w-16 h-16 rounded-full bg-white/90 backdrop-blur-md border border-white/50 flex items-center justify-center text-gray-700 shadow-lg;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
+    transition: all 0.2s ease;
+  }
+  
+  .lens-button:hover {
+    @apply bg-white scale-105;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  }
+  
+  .mode-button {
+    @apply px-4 py-2 rounded-full transition-all duration-200 touch-manipulation;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  
+  .mode-button-active {
+    @apply bg-white/95 text-blue-600 shadow-lg backdrop-blur-md;
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+  }
+  
+  .mode-button-inactive {
+    @apply bg-black/20 text-white border border-white/30 backdrop-blur-sm;
+  }
+  
+  .mode-button-inactive:hover {
+    @apply bg-black/30 border-white/50;
+  }
+  
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-md rounded-2xl border border-white/50 shadow-xl;
   }
   
   .touch-manipulation {

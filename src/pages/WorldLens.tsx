@@ -143,10 +143,10 @@ const WorldLens = () => {
                 console.log('Mode button touched:', id)
                 setMode(id)
               }}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-full transition-colors touch-manipulation ${
+              className={`flex items-center space-x-2 mode-button ${
                 mode === id
-                  ? 'bg-white text-primary'
-                  : 'bg-black/30 text-white border border-white/30'
+                  ? 'mode-button-active'
+                  : 'mode-button-inactive'
               }`}
               style={{ touchAction: 'manipulation' }}
             >
@@ -160,10 +160,13 @@ const WorldLens = () => {
       {/* Processing Indicator */}
       {isProcessing && (
         <div className="absolute inset-0 flex items-center justify-center z-30">
-          <div className="bg-black/70 text-white px-6 py-4 rounded-2xl backdrop-blur-sm">
-            <div className="flex items-center space-x-3">
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              <span>Analyzing...</span>
+          <div className="glass-card px-8 py-6 shadow-2xl">
+            <div className="flex items-center space-x-4">
+              <div className="w-6 h-6 border-3 border-blue-500 border-t-transparent rounded-full animate-spin" />
+              <div>
+                <span className="text-gray-800 font-medium">AI is thinking...</span>
+                <p className="text-sm text-gray-600 mt-1">🤖 Analyzing your image</p>
+              </div>
             </div>
           </div>
         </div>
@@ -184,13 +187,13 @@ const WorldLens = () => {
           <div className="text-center">
             <button
               onClick={() => setShowLanguageSelector(!showLanguageSelector)}
-              className="bg-black/50 text-white px-4 py-2 rounded-lg backdrop-blur-sm border border-white/30"
+              className="glass-card px-4 py-3 text-gray-800 font-medium shadow-lg"
             >
-              Translate to: {languages.find(l => l.code === targetLanguage)?.name}
+              🌍 Translate to: {languages.find(l => l.code === targetLanguage)?.name}
             </button>
             
             {showLanguageSelector && (
-              <div className="mt-2 bg-black/80 rounded-lg p-2 backdrop-blur-sm max-h-40 overflow-y-auto">
+              <div className="mt-3 glass-card p-2 max-h-48 overflow-y-auto">
                 {languages.map(lang => (
                   <button
                     key={lang.code}
@@ -198,8 +201,10 @@ const WorldLens = () => {
                       setTargetLanguage(lang.code)
                       setShowLanguageSelector(false)
                     }}
-                    className={`block w-full text-left px-3 py-2 rounded text-sm ${
-                      targetLanguage === lang.code ? 'bg-white/20 text-white' : 'text-white/80 hover:bg-white/10'
+                    className={`block w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+                      targetLanguage === lang.code 
+                        ? 'bg-blue-100 text-blue-700' 
+                        : 'text-gray-700 hover:bg-gray-100'
                     }`}
                   >
                     {lang.name}
@@ -214,11 +219,13 @@ const WorldLens = () => {
       {/* Mode Instructions */}
       <div className="absolute bottom-32 left-4 right-4 z-10">
         <div className="text-center">
-          <p className="text-white text-sm bg-black/30 px-4 py-2 rounded-full backdrop-blur-sm inline-block">
-            {mode === 'translate' && `Point at text to translate to ${languages.find(l => l.code === targetLanguage)?.name}`}
-            {mode === 'discover' && 'Point at landmarks to discover'}
-            {mode === 'scan' && 'Point at objects to learn more'}
-          </p>
+          <div className="glass-card px-6 py-3 inline-block">
+            <p className="text-gray-800 text-sm font-medium">
+              {mode === 'translate' && `📷 Point at text to translate to ${languages.find(l => l.code === targetLanguage)?.name}`}
+              {mode === 'discover' && '🏰 Point at landmarks to discover their history'}
+              {mode === 'scan' && '🔍 Point at objects to learn more about them'}
+            </p>
+          </div>
         </div>
       </div>
 
