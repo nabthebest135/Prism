@@ -6,10 +6,15 @@ interface WardrobeSetupProps {
   onCancel: () => void
 }
 
+interface WardrobeItem {
+  name: string
+  color: string
+}
+
 interface WardrobeItems {
-  tops: string[]
-  bottoms: string[]
-  shoes: string[]
+  tops: WardrobeItem[]
+  bottoms: WardrobeItem[]
+  shoes: WardrobeItem[]
 }
 
 const WardrobeSetup = ({ onComplete, onCancel }: WardrobeSetupProps) => {
@@ -20,6 +25,23 @@ const WardrobeSetup = ({ onComplete, onCancel }: WardrobeSetupProps) => {
     shoes: []
   })
   const [inputValue, setInputValue] = useState('')
+  const [selectedColor, setSelectedColor] = useState('black')
+  const [showColorPicker, setShowColorPicker] = useState(false)
+
+  const colors = [
+    { name: 'Black', value: 'black', hex: '#000000' },
+    { name: 'White', value: 'white', hex: '#FFFFFF' },
+    { name: 'Gray', value: 'gray', hex: '#808080' },
+    { name: 'Navy', value: 'navy', hex: '#000080' },
+    { name: 'Blue', value: 'blue', hex: '#0066CC' },
+    { name: 'Red', value: 'red', hex: '#CC0000' },
+    { name: 'Green', value: 'green', hex: '#00AA00' },
+    { name: 'Brown', value: 'brown', hex: '#8B4513' },
+    { name: 'Beige', value: 'beige', hex: '#F5F5DC' },
+    { name: 'Pink', value: 'pink', hex: '#FF69B4' },
+    { name: 'Purple', value: 'purple', hex: '#800080' },
+    { name: 'Yellow', value: 'yellow', hex: '#FFD700' }
+  ]
 
   const categories = [
     { id: 'tops' as const, name: 'Tops', items: ['T-shirt', 'Shirt', 'Hoodie', 'Sweater', 'Tank Top', 'Blouse', 'Jacket'] },
@@ -30,23 +52,24 @@ const WardrobeSetup = ({ onComplete, onCancel }: WardrobeSetupProps) => {
   const currentCategoryData = categories.find(cat => cat.id === currentCategory)!
   const currentCategoryIndex = categories.findIndex(cat => cat.id === currentCategory)
 
-  const addItem = (item: string) => {
+  const addItem = (itemName: string, color: string = selectedColor) => {
+    const newItem = { name: itemName, color }
     setWardrobe(prev => ({
       ...prev,
-      [currentCategory]: [...prev[currentCategory], item]
+      [currentCategory]: [...prev[currentCategory], newItem]
     }))
   }
 
-  const removeItem = (item: string) => {
+  const removeItem = (item: WardrobeItem) => {
     setWardrobe(prev => ({
       ...prev,
-      [currentCategory]: prev[currentCategory].filter(i => i !== item)
+      [currentCategory]: prev[currentCategory].filter(i => i.name !== item.name || i.color !== item.color)
     }))
   }
 
   const addCustomItem = () => {
     if (inputValue.trim()) {
-      addItem(inputValue.trim())
+      addItem(inputValue.trim(), selectedColor)
       setInputValue('')
     }
   }
@@ -59,7 +82,17 @@ const WardrobeSetup = ({ onComplete, onCancel }: WardrobeSetupProps) => {
     }
   }
 
-  const isItemSelected = (item: string) => wardrobe[currentCategory].includes(item)
+  const isItemSelected = (itemName: string) => 
+    wardrobe[currentCategory].some(item => item.name === itemName)
+
+  const toggleItem = (itemName: string) => {
+    if (isItemSelected(itemName)) {
+      const item = wardrobe[currentCategory].find(i => i.name === itemName)!
+      removeItem(item)
+    } else {
+      setShowColorPicker(itemName)
+    }
+  }
 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
@@ -82,7 +115,7 @@ const WardrobeSetup = ({ onComplete, onCancel }: WardrobeSetupProps) => {
           {currentCategoryData.items.map(item => (
             <button
               key={item}
-              onClick={() => isItemSelected(item) ? removeItem(item) : addItem(item)}
+              onClick={() => toggleItem(item)}
               className={`w-full flex items-center justify-between p-3 rounded-lg border transition-colors ${
                 isItemSelected(item)
                   ? 'bg-primary/10 border-primary text-primary'
@@ -94,6 +127,39 @@ const WardrobeSetup = ({ onComplete, onCancel }: WardrobeSetupProps) => {
             </button>
           ))}
         </div>
+
+        {/* Color Picker Modal */}
+        {showColorPicker && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-4 max-w-sm w-full mx-4">
+              <h3 className="font-medium mb-3">Choose color for {showColorPicker}:</h3>
+              <div className="grid grid-cols-4 gap-2 mb-4">
+                {colors.map(color => (
+                  <button
+                    key={color.value}
+                    onClick={() => {
+                      addItem(showColorPicker, color.value)
+                      setShowColorPicker(false)
+                    }}
+                    className="flex flex-col items-center p-2 rounded-lg hover:bg-gray-50"
+                  >
+                    <div 
+                      className="w-8 h-8 rounded-full border-2 border-gray-300 mb-1"
+                      style={{ backgroundColor: color.hex }}
+                    />
+                    <span className="text-xs">{color.name}</span>
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={() => setShowColorPicker(false)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Custom Item Input */}
         <div className="mb-6">
@@ -120,15 +186,22 @@ const WardrobeSetup = ({ onComplete, onCancel }: WardrobeSetupProps) => {
           <div className="mb-6">
             <h3 className="font-medium mb-2">Selected {currentCategoryData.name}:</h3>
             <div className="flex flex-wrap gap-2">
-              {wardrobe[currentCategory].map(item => (
-                <span
-                  key={item}
-                  className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm cursor-pointer hover:bg-primary/20"
-                  onClick={() => removeItem(item)}
-                >
-                  {item} ×
-                </span>
-              ))}
+              {wardrobe[currentCategory].map((item, index) => {
+                const colorData = colors.find(c => c.value === item.color)
+                return (
+                  <span
+                    key={`${item.name}-${item.color}-${index}`}
+                    className="flex items-center gap-1 px-3 py-1 bg-primary/10 text-primary rounded-full text-sm cursor-pointer hover:bg-primary/20"
+                    onClick={() => removeItem(item)}
+                  >
+                    <div 
+                      className="w-3 h-3 rounded-full border border-gray-300"
+                      style={{ backgroundColor: colorData?.hex || '#000' }}
+                    />
+                    {item.name} ({item.color}) ×
+                  </span>
+                )
+              })}
             </div>
           </div>
         )}

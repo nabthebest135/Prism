@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Shirt, Sparkles } from 'lucide-react'
+import { Plus, Shirt, Sparkles, Cloud } from 'lucide-react'
 import CameraView from '../components/CameraView'
 import WardrobeSetup from '../components/WardrobeSetup'
 import { AIService } from '../services/aiService'
+import { WeatherService } from '../services/weatherService'
 import { useWardrobeStore } from '../store/wardrobeStore'
 
 type StyleMode = 'scan' | 'tryOn' | 'outfit'
@@ -15,8 +16,28 @@ const StyleLens = () => {
   const [overlayText, setOverlayText] = useState<string>('')
   const [showWardrobeSetup, setShowWardrobeSetup] = useState(false)
   const [userWardrobe, setUserWardrobe] = useState<any>(null)
+  const [weather, setWeather] = useState<any>(null)
   const { addItem } = useWardrobeStore()
   const aiService = new AIService()
+  const weatherService = new WeatherService()
+
+  useEffect(() => {
+    // Get weather data
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const weatherData = await weatherService.getCurrentWeather(
+            position.coords.latitude,
+            position.coords.longitude
+          )
+          setWeather(weatherData)
+        } catch (error) {
+          console.error('Weather fetch failed:', error)
+        }
+      },
+      (error) => console.error('Geolocation failed:', error)
+    )
+  }, [])
 
   const modes = [
     { id: 'scan' as StyleMode, icon: Plus, label: 'Add Item' },
@@ -71,8 +92,25 @@ const StyleLens = () => {
           return
         }
         
-        const wardrobeText = `Available items: Tops: ${userWardrobe.tops.join(', ')}, Bottoms: ${userWardrobe.bottoms.join(', ')}, Shoes: ${userWardrobe.shoes.join(', ')}`
-        const prompt = `Based on this image and my wardrobe (${wardrobeText}), suggest a complete outfit using items I own. Include styling tips.`
+        const wardrobeText = `Available items:\n` +
+          `Tops: ${userWardrobe.tops.map(item => `${item.color} ${item.name}`).join(', ')}\n` +
+          `Bottoms: ${userWardrobe.bottoms.map(item => `${item.color} ${item.name}`).join(', ')}\n` +
+          `Shoes: ${userWardrobe.shoes.map(item => `${item.color} ${item.name}`).join(', ')}`
+        
+        const weatherText = weather ? 
+          `Current weather: ${weather.condition}, ${Math.round(weather.temp_c)}°C (${Math.round(weather.temp_f)}°F)` : 
+          'Weather data not available'
+        
+        const prompt = `You are a professional fashion stylist. Based on this image, current weather, and my wardrobe below, give me:\n\n` +
+          `${weatherText}\n\n` +
+          `${wardrobeText}\n\n` +
+          `1. A complete outfit recommendation using ONLY items from my wardrobe (consider the weather!)\n` +
+          `2. Your honest fashion opinion about the combination\n` +
+          `3. Color coordination advice\n` +
+          `4. Styling tips to make it look better\n` +
+          `5. What occasion this outfit would be perfect for\n` +
+          `6. Weather appropriateness rating (1-10)\n\n` +
+          `Be specific about colors and give me your professional opinion!`
         
         const response = await aiService.analyzeImage(imageBase64, prompt)
         const result = response.choices?.[0]?.message?.content || 'No suggestions available'
