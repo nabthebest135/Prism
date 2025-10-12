@@ -1,12 +1,14 @@
 import { Link } from 'react-router-dom'
-import { Camera, Shirt, MapPin, Sun, Calendar, Cloud, CloudRain } from 'lucide-react'
+import { Camera, Shirt, MapPin, Sun, Calendar, Cloud, CloudRain, Star, MessageCircle } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
+import { useFeedbackStore } from '../store/feedbackStore'
 import { useEffect, useState } from 'react'
 import { WeatherService, WeatherData } from '../services/weatherService'
 import { CalendarService, CalendarEvent } from '../services/calendarService'
 
 const Home = () => {
   const { user } = useAuthStore()
+  const { feedbacks, getAverageRating } = useFeedbackStore()
   const [weather, setWeather] = useState<WeatherData | null>(null)
   const [todaysEvents, setTodaysEvents] = useState<CalendarEvent[]>([])
   const [loading, setLoading] = useState(true)
@@ -197,6 +199,72 @@ const Home = () => {
               <p className="font-medium text-gray-900">Historic Building</p>
               <p className="text-sm text-gray-600">Discovered 2 hours ago</p>
             </div>
+          </div>
+        </div>
+
+        {/* User Testimonials */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold text-gray-900">What users love ❤️</h2>
+            <Link to="/testimonials" className="text-blue-600 font-medium text-sm">
+              View All
+            </Link>
+          </div>
+          
+          <div className="glass-card p-4">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2">
+                <Star className="text-yellow-400 fill-current" size={20} />
+                <span className="font-bold text-gray-900">{getAverageRating()}</span>
+                <span className="text-gray-600 text-sm">({feedbacks.length} reviews)</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    size={16}
+                    className={star <= Math.round(getAverageRating()) ? 'text-yellow-400 fill-current' : 'text-gray-300'}
+                  />
+                ))}
+              </div>
+            </div>
+            
+            {feedbacks.slice(0, 2).map((feedback) => (
+              <div key={feedback.id} className="mb-4 last:mb-0">
+                <div className="flex items-center space-x-2 mb-2">
+                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                    <span className="text-white font-bold text-xs">
+                      {feedback.userName ? feedback.userName.charAt(0) : '?'}
+                    </span>
+                  </div>
+                  <span className="font-medium text-gray-900 text-sm">
+                    {feedback.userName || 'Anonymous'}
+                  </span>
+                  <div className="flex">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        size={12}
+                        className={star <= feedback.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <p className="text-gray-700 text-sm leading-relaxed">
+                  {feedback.message.length > 120 
+                    ? `${feedback.message.substring(0, 120)}...` 
+                    : feedback.message
+                  }
+                </p>
+              </div>
+            ))}
+            
+            <Link
+              to="/testimonials"
+              className="w-full mt-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-lg font-medium text-center block text-sm"
+            >
+              Read More Reviews 📝
+            </Link>
           </div>
         </div>
       </div>

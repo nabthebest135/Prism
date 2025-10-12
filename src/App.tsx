@@ -8,6 +8,7 @@ import Wardrobe from './pages/Wardrobe'
 import Discoveries from './pages/Discoveries'
 import Profile from './pages/Profile'
 import History from './pages/History'
+import Testimonials from './pages/Testimonials'
 import Onboarding from './pages/Onboarding'
 import OutfitAnalysis from './pages/OutfitAnalysis'
 import SmartOutfitSuggestion from './pages/SmartOutfitSuggestion'
@@ -36,6 +37,7 @@ function App() {
           <Route path="/wardrobe" element={<Wardrobe />} />
           <Route path="/discoveries" element={<Discoveries />} />
           <Route path="/history" element={<History />} />
+          <Route path="/testimonials" element={<Testimonials />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/outfit-analysis" element={<OutfitAnalysis />} />
           <Route path="/smart-outfit" element={<SmartOutfitSuggestion />} />
