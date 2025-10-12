@@ -161,20 +161,7 @@ const WorldLens = () => {
         </div>
       </div>
 
-      {/* Test Button for Development */}
-      <div className="absolute bottom-16 left-4 right-4 z-20">
-        <div className="text-center">
-          <button
-            onClick={() => {
-              const testImage = '/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwA/8A'
-              handleCapture(testImage)
-            }}
-            className="bg-red-500 text-white px-4 py-2 rounded-lg"
-          >
-            TEST API (Dev Only)
-          </button>
-        </div>
-      </div>
+
     </CameraView>
   )
 }
