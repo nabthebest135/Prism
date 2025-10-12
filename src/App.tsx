@@ -19,9 +19,10 @@ function App() {
     initialize()
   }, [initialize])
 
-  if (user === null) {
-    return <Onboarding />
-  }
+  // Skip onboarding for testing
+  // if (user === null) {
+  //   return <Onboarding />
+  // }
 
   return (
     <Router>
