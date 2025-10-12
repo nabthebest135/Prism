@@ -73,30 +73,6 @@ Return JSON format:
     const temp = weather?.temperature || 25
     const location = weather?.location || 'Unknown'
     
-    const prompt = `You are a fashion stylist. Create outfit recommendation for ${occasion} in ${location}.
-
-Weather: ${temp}°C, ${weather?.condition || 'Clear'}
-
-Available wardrobe items:
-${wardrobeItems.map(item => `- ${item.name} (${item.category}, ${item.color})`).join('\n')}
-
-For temperature ${temp}°C:
-- If 35°C+: Choose light, breathable fabrics (cotton shorts, tank tops, sandals)
-- If 30-35°C: Light clothing (linen shorts, cotton shirts, sneakers) 
-- If 25-30°C: Comfortable casual (light pants, t-shirts)
-- If 20-25°C: Light layers (jeans, light sweater)
-- If 15-20°C: Warm layers (jacket, long pants)
-- If <15°C: Heavy layers (coat, boots)
-
-Select specific items from the wardrobe that match the temperature. Return JSON:
-{
-  "recommendation": "Specific outfit: [item1] + [item2] + [item3]",
-  "reasoning": "Perfect for ${temp}°C weather because...",
-  "confidence": 0.9,
-  "suggestedItems": ["exact item names from wardrobe"],
-  "styleRating": 8
-}`
-
     try {
       const response = await this.aiService.generateOutfitRecommendation(wardrobeItems, weather, occasion)
       const result = response.choices?.[0]?.message?.content || '{}'
