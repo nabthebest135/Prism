@@ -1,4 +1,4 @@
-const OPENROUTER_API_KEY = (import.meta as any).env.VITE_OPENROUTER_API_KEY || 'your-openrouter-key'
+const OPENROUTER_API_KEY = (import.meta as any).env.VITE_OPENROUTER_API_KEY || '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'
 const OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1'
 
 export class AIService {
@@ -11,6 +11,10 @@ export class AIService {
       
       if (OPENROUTER_API_KEY === 'your-openrouter-key') {
         throw new Error('API key not loaded - using default placeholder')
+      }
+      
+      if (!OPENROUTER_API_KEY || OPENROUTER_API_KEY.length < 10) {
+        throw new Error('API key is empty or too short')
       }
       
       const response = await this.makeRequest('/chat/completions', {
