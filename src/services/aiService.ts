@@ -39,7 +39,7 @@ export class AIService {
 
   async analyzeImage(imageBase64: string, prompt: string) {
     return this.makeRequest('/chat/completions', {
-      model: 'qwen/qwen-2.5-72b-instruct',
+      model: 'google/gemini-flash-1.5',
       messages: [
         {
           role: 'user',
