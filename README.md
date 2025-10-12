@@ -2,6 +2,8 @@
 
 Turn your phone camera into a smart AR tool! Point at anything and get instant translations, discover cool history about places, or get AI styling advice for your outfits.
 
+> **Latest Update**: Fixed authentication system with proper session persistence and email confirmation bypass for seamless user experience.
+
 ## What it does
 
 **World Lens** 🌍
