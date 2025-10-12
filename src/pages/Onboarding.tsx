@@ -2,7 +2,11 @@ import { useState } from 'react'
 import { Camera, MapPin, Shirt, ArrowRight } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
 
-const Onboarding = () => {
+interface OnboardingProps {
+  onGetStarted?: () => void
+}
+
+const Onboarding = ({ onGetStarted }: OnboardingProps) => {
   const [step, setStep] = useState(0)
   const [formData, setFormData] = useState({
     name: '',
@@ -74,7 +78,7 @@ const Onboarding = () => {
           </div>
 
           <button
-            onClick={handleNext}
+            onClick={step === slides.length - 1 ? onGetStarted : handleNext}
             className="w-full bg-white text-primary font-semibold py-4 rounded-2xl flex items-center justify-center space-x-2 active:scale-95 transition-transform"
           >
             <span>{step === slides.length - 1 ? 'Get Started' : 'Next'}</span>
@@ -85,62 +89,8 @@ const Onboarding = () => {
     )
   }
 
-  return (
-    <div className="min-h-screen bg-white flex flex-col justify-center p-6">
-      <div className="max-w-sm mx-auto w-full space-y-8">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome to Prism</h1>
-          <p className="text-gray-600">Create your account to start exploring</p>
-        </div>
-
-        <form onSubmit={handleSignUp} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
-            <input
-              type="text"
-              required
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
-              placeholder="Your name"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-            <input
-              type="email"
-              required
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
-              placeholder="your@email.com"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
-            <input
-              type="password"
-              required
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
-              placeholder="Create a password"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-primary text-white font-semibold py-4 rounded-xl disabled:opacity-50 active:scale-95 transition-transform"
-          >
-            {loading ? 'Creating Account...' : 'Create Account'}
-          </button>
-        </form>
-      </div>
-    </div>
-  )
+  // This should never render since we handle auth in the modal
+  return null
 }
 
 export default Onboarding

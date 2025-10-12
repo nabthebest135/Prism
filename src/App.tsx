@@ -23,8 +23,14 @@ function App() {
     initialize()
   }, [initialize])
 
+  // Show auth modal if no user
   if (user === null) {
-    return <Onboarding />
+    return (
+      <>
+        <Onboarding onGetStarted={() => setShowAuthModal(true)} />
+        <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+      </>
+    )
   }
 
   return (
@@ -43,7 +49,6 @@ function App() {
           <Route path="/smart-outfit" element={<SmartOutfitSuggestion />} />
         </Routes>
       </Layout>
-      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </Router>
   )
 }

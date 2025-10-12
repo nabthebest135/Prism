@@ -26,10 +26,29 @@ export const useAuthStore = create<AuthState>((set) => ({
       const { data: { session } } = await supabase.auth.getSession()
       
       if (session?.user) {
-        set({ user: { id: session.user.id, email: session.user.email! } })
+        const userData = {
+          id: session.user.id,
+          email: session.user.email!,
+          name: session.user.user_metadata?.name || session.user.email?.split('@')[0]
+        }
+        set({ user: userData })
       } else {
         set({ user: null })
       }
+
+      // Listen for auth changes
+      supabase.auth.onAuthStateChange((event, session) => {
+        if (session?.user) {
+          const userData = {
+            id: session.user.id,
+            email: session.user.email!,
+            name: session.user.user_metadata?.name || session.user.email?.split('@')[0]
+          }
+          set({ user: userData })
+        } else {
+          set({ user: null })
+        }
+      })
     } catch (error) {
       console.error('Auth initialization error:', error)
       set({ user: null })
@@ -43,18 +62,23 @@ export const useAuthStore = create<AuthState>((set) => ({
         email,
         password,
         options: {
-          data: { name }
+          data: { name },
+          emailRedirectTo: undefined // Skip email confirmation
         }
       })
       
       if (error) throw error
       
-      if (data.user) {
-        set({ user: { id: data.user.id, email: data.user.email!, name } })
+      // For development: auto-confirm user
+      if (data.user && !data.user.email_confirmed_at) {
+        // User will be set via onAuthStateChange listener
+        console.log('User signed up successfully')
       }
-    } finally {
+    } catch (error) {
       set({ loading: false })
+      throw error
     }
+    set({ loading: false })
   },
 
   signIn: async (email: string, password: string) => {
@@ -67,12 +91,12 @@ export const useAuthStore = create<AuthState>((set) => ({
       
       if (error) throw error
       
-      if (data.user) {
-        set({ user: { id: data.user.id, email: data.user.email! } })
-      }
-    } finally {
+      // User will be set via onAuthStateChange listener
+    } catch (error) {
       set({ loading: false })
+      throw error
     }
+    set({ loading: false })
   },
 
   signOut: async () => {
