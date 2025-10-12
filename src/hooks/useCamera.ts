@@ -42,7 +42,7 @@ export const useCamera = () => {
       }
     } catch (err) {
       console.error('Camera error details:', err)
-      setError(`Camera error: ${err.message || 'Unknown error'}`)
+      setError(`Camera error: ${err instanceof Error ? err.message : 'Unknown error'}`)
     }
   }
 
