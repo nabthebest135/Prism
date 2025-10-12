@@ -59,7 +59,9 @@ const CameraView = ({ onBack, onCapture, children, title }: CameraViewProps) => 
       <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between p-4 bg-gradient-to-b from-black/50 to-transparent">
         <button
           onClick={onBack}
-          className="lens-button"
+          onTouchStart={onBack}
+          className="lens-button touch-manipulation"
+          style={{ touchAction: 'manipulation' }}
         >
           <ArrowLeft size={24} />
         </button>
@@ -82,8 +84,10 @@ const CameraView = ({ onBack, onCapture, children, title }: CameraViewProps) => 
           {onCapture && (
             <button
               onClick={handleCapture}
+              onTouchStart={handleCapture}
               disabled={!isActive}
-              className="w-20 h-20 rounded-full bg-white border-4 border-white/30 flex items-center justify-center disabled:opacity-50"
+              className="w-20 h-20 rounded-full bg-white border-4 border-white/30 flex items-center justify-center disabled:opacity-50 touch-manipulation"
+              style={{ touchAction: 'manipulation' }}
             >
               <div className="w-16 h-16 rounded-full bg-white" />
             </button>

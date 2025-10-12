@@ -25,11 +25,25 @@
     @apply absolute inset-0 pointer-events-none;
   }
   
+  .camera-overlay > * {
+    pointer-events: auto;
+  }
+  
   .ar-text-overlay {
     @apply bg-black/70 text-white px-3 py-2 rounded-lg backdrop-blur-sm;
   }
   
   .lens-button {
     @apply w-16 h-16 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  .touch-manipulation {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
   }
 }
