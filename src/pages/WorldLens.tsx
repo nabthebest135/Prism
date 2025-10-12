@@ -20,6 +20,16 @@ const WorldLens = () => {
   ]
 
   const handleCapture = async (imageBase64: string) => {
+    console.log('WorldLens - Capture triggered')
+    console.log('WorldLens - Image data received:', imageBase64 ? 'Yes' : 'No')
+    console.log('WorldLens - Image size:', imageBase64?.length || 0)
+    
+    if (!imageBase64) {
+      setOverlayText('Camera capture failed. Please try again.')
+      setTimeout(() => setOverlayText(''), 3000)
+      return
+    }
+    
     setIsProcessing(true)
     try {
       let prompt = ''
@@ -36,15 +46,17 @@ const WorldLens = () => {
           break
       }
 
+      console.log('WorldLens - Starting AI analysis with mode:', mode)
       const response = await aiService.analyzeImage(imageBase64, prompt)
       const result = response.choices?.[0]?.message?.content || 'No information available'
       
+      console.log('WorldLens - AI response:', result)
       setOverlayText(result)
       
       // Clear overlay after 5 seconds
       setTimeout(() => setOverlayText(''), 5000)
     } catch (error) {
-      console.error('AI analysis error:', error)
+      console.error('WorldLens - AI analysis error:', error)
       setOverlayText('Analysis failed. Please try again.')
       setTimeout(() => setOverlayText(''), 3000)
     } finally {

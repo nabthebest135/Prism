@@ -63,10 +63,22 @@ export const useCamera = () => {
   }
 
   const captureImageAsBase64 = (): string | null => {
-    const dataUrl = captureImage()
-    if (!dataUrl) return null
+    console.log('Camera - Attempting to capture image')
+    console.log('Camera - Video active:', isActive)
+    console.log('Camera - Video element:', videoRef.current ? 'Present' : 'Missing')
+    console.log('Camera - Canvas element:', canvasRef.current ? 'Present' : 'Missing')
     
-    return dataUrl.split(',')[1]
+    const dataUrl = captureImage()
+    console.log('Camera - DataURL captured:', dataUrl ? 'Yes' : 'No')
+    
+    if (!dataUrl) {
+      console.error('Camera - Failed to capture image')
+      return null
+    }
+    
+    const base64 = dataUrl.split(',')[1]
+    console.log('Camera - Base64 extracted, length:', base64?.length || 0)
+    return base64
   }
 
   useEffect(() => {
