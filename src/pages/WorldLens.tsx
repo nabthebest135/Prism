@@ -11,7 +11,24 @@ const WorldLens = () => {
   const [mode, setMode] = useState<LensMode>('translate')
   const [overlayText, setOverlayText] = useState<string>('')
   const [isProcessing, setIsProcessing] = useState(false)
+  const [targetLanguage, setTargetLanguage] = useState('en')
+  const [showLanguageSelector, setShowLanguageSelector] = useState(false)
   const aiService = new AIService()
+
+  const languages = [
+    { code: 'en', name: 'English' },
+    { code: 'es', name: 'Spanish' },
+    { code: 'fr', name: 'French' },
+    { code: 'de', name: 'German' },
+    { code: 'it', name: 'Italian' },
+    { code: 'pt', name: 'Portuguese' },
+    { code: 'ru', name: 'Russian' },
+    { code: 'ja', name: 'Japanese' },
+    { code: 'ko', name: 'Korean' },
+    { code: 'zh', name: 'Chinese' },
+    { code: 'ar', name: 'Arabic' },
+    { code: 'hi', name: 'Hindi' }
+  ]
 
   const modes = [
     { id: 'translate' as LensMode, icon: Languages, label: 'Translate' },
@@ -46,7 +63,8 @@ const WorldLens = () => {
       
       switch (mode) {
         case 'translate':
-          prompt = 'Identify and translate any text in this image to English. If no text is found, say "No text detected".'
+          const selectedLang = languages.find(l => l.code === targetLanguage)?.name || 'English'
+          prompt = `Identify and translate any text in this image to ${selectedLang}. If no text is found, say "No text detected".`
           break
         case 'discover':
           prompt = 'Identify any landmarks, buildings, or notable locations in this image and provide interesting historical or cultural information.'
@@ -150,11 +168,44 @@ const WorldLens = () => {
         </div>
       )}
 
+      {/* Language Selector for Translate Mode */}
+      {mode === 'translate' && (
+        <div className="absolute top-32 left-4 right-4 z-20">
+          <div className="text-center">
+            <button
+              onClick={() => setShowLanguageSelector(!showLanguageSelector)}
+              className="bg-black/50 text-white px-4 py-2 rounded-lg backdrop-blur-sm border border-white/30"
+            >
+              Translate to: {languages.find(l => l.code === targetLanguage)?.name}
+            </button>
+            
+            {showLanguageSelector && (
+              <div className="mt-2 bg-black/80 rounded-lg p-2 backdrop-blur-sm max-h-40 overflow-y-auto">
+                {languages.map(lang => (
+                  <button
+                    key={lang.code}
+                    onClick={() => {
+                      setTargetLanguage(lang.code)
+                      setShowLanguageSelector(false)
+                    }}
+                    className={`block w-full text-left px-3 py-2 rounded text-sm ${
+                      targetLanguage === lang.code ? 'bg-white/20 text-white' : 'text-white/80 hover:bg-white/10'
+                    }`}
+                  >
+                    {lang.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Mode Instructions */}
       <div className="absolute bottom-32 left-4 right-4 z-10">
         <div className="text-center">
           <p className="text-white text-sm bg-black/30 px-4 py-2 rounded-full backdrop-blur-sm inline-block">
-            {mode === 'translate' && 'Point at text to translate'}
+            {mode === 'translate' && `Point at text to translate to ${languages.find(l => l.code === targetLanguage)?.name}`}
             {mode === 'discover' && 'Point at landmarks to discover'}
             {mode === 'scan' && 'Point at objects to learn more'}
           </p>

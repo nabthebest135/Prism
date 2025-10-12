@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Plus, Shirt, Sparkles } from 'lucide-react'
 import CameraView from '../components/CameraView'
+import WardrobeSetup from '../components/WardrobeSetup'
 import { AIService } from '../services/aiService'
 import { useWardrobeStore } from '../store/wardrobeStore'
 
@@ -12,6 +13,8 @@ const StyleLens = () => {
   const [mode, setMode] = useState<StyleMode>('scan')
   const [isProcessing, setIsProcessing] = useState(false)
   const [overlayText, setOverlayText] = useState<string>('')
+  const [showWardrobeSetup, setShowWardrobeSetup] = useState(false)
+  const [userWardrobe, setUserWardrobe] = useState<any>(null)
   const { addItem } = useWardrobeStore()
   const aiService = new AIService()
 
@@ -62,7 +65,15 @@ const StyleLens = () => {
         setOverlayText('Virtual try-on coming soon!')
         setTimeout(() => setOverlayText(''), 3000)
       } else if (mode === 'outfit') {
-        const prompt = 'Suggest a complete outfit based on this clothing item. Include complementary pieces and styling tips.'
+        if (!userWardrobe) {
+          setShowWardrobeSetup(true)
+          setIsProcessing(false)
+          return
+        }
+        
+        const wardrobeText = `Available items: Tops: ${userWardrobe.tops.join(', ')}, Bottoms: ${userWardrobe.bottoms.join(', ')}, Shoes: ${userWardrobe.shoes.join(', ')}`
+        const prompt = `Based on this image and my wardrobe (${wardrobeText}), suggest a complete outfit using items I own. Include styling tips.`
+        
         const response = await aiService.analyzeImage(imageBase64, prompt)
         const result = response.choices?.[0]?.message?.content || 'No suggestions available'
         
@@ -79,11 +90,25 @@ const StyleLens = () => {
   }
 
   return (
-    <CameraView
-      title="Style Lens"
-      onBack={() => navigate('/')}
-      onCapture={handleCapture}
-    >
+    <>
+      {showWardrobeSetup && (
+        <WardrobeSetup
+          onComplete={(wardrobe) => {
+            setUserWardrobe(wardrobe)
+            setShowWardrobeSetup(false)
+          }}
+          onCancel={() => {
+            setShowWardrobeSetup(false)
+            setMode('scan')
+          }}
+        />
+      )}
+      
+      <CameraView
+        title="Style Lens"
+        onBack={() => navigate('/')}
+        onCapture={handleCapture}
+      >
       {/* Mode Selector */}
       <div className="absolute top-20 left-4 right-4 z-20">
         <div className="flex justify-center space-x-2">
@@ -139,7 +164,8 @@ const StyleLens = () => {
           </p>
         </div>
       </div>
-    </CameraView>
+      </CameraView>
+    </>
   )
 }
 
