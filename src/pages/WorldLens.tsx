@@ -47,17 +47,26 @@ const WorldLens = () => {
       }
 
       console.log('WorldLens - Starting AI analysis with mode:', mode)
+      console.log('WorldLens - Prompt:', prompt)
+      
       const response = await aiService.analyzeImage(imageBase64, prompt)
+      console.log('WorldLens - Full AI response:', response)
+      
       const result = response.choices?.[0]?.message?.content || 'No information available'
       
-      console.log('WorldLens - AI response:', result)
+      console.log('WorldLens - Extracted result:', result)
       setOverlayText(result)
       
       // Clear overlay after 5 seconds
       setTimeout(() => setOverlayText(''), 5000)
     } catch (error) {
-      console.error('WorldLens - AI analysis error:', error)
-      setOverlayText('Analysis failed. Please try again.')
+      console.error('WorldLens - AI analysis error details:', error)
+      console.error('WorldLens - Error message:', error.message)
+      console.error('WorldLens - Error stack:', error.stack)
+      
+      // Show more specific error message
+      const errorMsg = error.message?.includes('API') ? 'API connection failed' : 'Analysis failed. Please try again.'
+      setOverlayText(errorMsg)
       setTimeout(() => setOverlayText(''), 3000)
     } finally {
       setIsProcessing(false)

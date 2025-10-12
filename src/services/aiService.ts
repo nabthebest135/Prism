@@ -3,22 +3,38 @@ const OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1'
 
 export class AIService {
   private async makeRequest(endpoint: string, data: any) {
-    const response = await fetch(`${OPENROUTER_BASE_URL}${endpoint}`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': window.location.origin,
-        'X-Title': 'Prism AR App'
-      },
-      body: JSON.stringify(data)
-    })
+    console.log('AIService - Making request to:', `${OPENROUTER_BASE_URL}${endpoint}`)
+    console.log('AIService - Request data:', JSON.stringify(data, null, 2))
+    console.log('AIService - API Key present:', OPENROUTER_API_KEY ? 'Yes' : 'No')
     
-    if (!response.ok) {
-      throw new Error(`AI service error: ${response.statusText}`)
+    try {
+      const response = await fetch(`${OPENROUTER_BASE_URL}${endpoint}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': window.location.origin,
+          'X-Title': 'Prism AR App'
+        },
+        body: JSON.stringify(data)
+      })
+      
+      console.log('AIService - Response status:', response.status)
+      console.log('AIService - Response ok:', response.ok)
+      
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('AIService - Error response:', errorText)
+        throw new Error(`AI service error: ${response.status} ${response.statusText} - ${errorText}`)
+      }
+      
+      const result = await response.json()
+      console.log('AIService - Success response:', result)
+      return result
+    } catch (error) {
+      console.error('AIService - Request failed:', error)
+      throw error
     }
-    
-    return response.json()
   }
 
   async analyzeImage(imageBase64: string, prompt: string) {
