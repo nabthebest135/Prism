@@ -103,4 +103,39 @@ export class AIService {
       max_tokens: 200
     })
   }
+
+  async predictConfidenceScore(imageBase64: string, personalStyle: string) {
+    const prompt = `You are a psychology and fashion expert. Analyze this outfit and predict the confidence score (1-10) the wearer will feel. Consider:\n\n` +
+      `Personal style preference: ${personalStyle}\n\n` +
+      `Factors to analyze:\n` +
+      `1. Color psychology and mood impact\n` +
+      `2. Fit and comfort level visible\n` +
+      `3. Style appropriateness\n` +
+      `4. Overall put-together appearance\n` +
+      `5. Potential for compliments\n\n` +
+      `Provide:\n` +
+      `- Confidence score (1-10)\n` +
+      `- Psychological reasoning\n` +
+      `- What makes this outfit confidence-boosting or confidence-draining\n` +
+      `- Tips to increase confidence in this outfit`
+    
+    return this.analyzeImage(imageBase64, prompt)
+  }
+
+  async calculateComplimentProbability(imageBase64: string, occasion: string) {
+    const prompt = `You are a social psychology expert. Analyze this outfit and calculate the probability (0-100%) of receiving compliments at: ${occasion}\n\n` +
+      `Consider:\n` +
+      `1. Visual appeal and uniqueness\n` +
+      `2. Appropriateness for the occasion\n` +
+      `3. Color combinations and styling\n` +
+      `4. Trendy vs classic elements\n` +
+      `5. Overall wow factor\n\n` +
+      `Provide:\n` +
+      `- Compliment probability percentage\n` +
+      `- Most likely compliments you'll receive\n` +
+      `- What specifically will catch people's attention\n` +
+      `- How to maximize compliment potential`
+    
+    return this.analyzeImage(imageBase64, prompt)
+  }
 }

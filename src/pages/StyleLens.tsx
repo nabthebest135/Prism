@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Shirt, Sparkles, Cloud } from 'lucide-react'
+import { Plus, Shirt, Sparkles, Cloud, Clock } from 'lucide-react'
 import CameraView from '../components/CameraView'
 import WardrobeSetup from '../components/WardrobeSetup'
 import { AIService } from '../services/aiService'
 import { WeatherService } from '../services/weatherService'
 import { useWardrobeStore } from '../store/wardrobeStore'
 
-type StyleMode = 'scan' | 'tryOn' | 'outfit'
+type StyleMode = 'scan' | 'tryOn' | 'outfit' | 'aging'
 
 const StyleLens = () => {
   const navigate = useNavigate()
@@ -42,7 +42,8 @@ const StyleLens = () => {
   const modes = [
     { id: 'scan' as StyleMode, icon: Plus, label: 'Add Item' },
     { id: 'tryOn' as StyleMode, icon: Shirt, label: 'Try On' },
-    { id: 'outfit' as StyleMode, icon: Sparkles, label: 'Outfit' }
+    { id: 'outfit' as StyleMode, icon: Sparkles, label: 'Outfit' },
+    { id: 'aging' as StyleMode, icon: Clock, label: 'Aging' }
   ]
 
   const handleCapture = async (imageBase64: string) => {
@@ -117,6 +118,26 @@ const StyleLens = () => {
         
         setOverlayText(result)
         setTimeout(() => setOverlayText(''), 8000)
+      } else if (mode === 'aging') {
+        const prompt = `You are a fabric and fashion expert. Analyze this clothing/outfit and predict how it will look after 6 months of regular wear. Consider:\n\n` +
+          `1. Fabric type and quality visible in the image\n` +
+          `2. Color fading patterns (which colors fade fastest)\n` +
+          `3. Areas prone to stretching, pilling, or wear\n` +
+          `4. Seam stress points\n` +
+          `5. Care requirements and durability\n\n` +
+          `Provide a detailed prediction of:\n` +
+          `- How colors will change\n` +
+          `- Which areas will show wear first\n` +
+          `- Overall condition rating (1-10)\n` +
+          `- Tips to prevent aging\n` +
+          `- Expected lifespan\n\n` +
+          `Be specific and realistic about the aging process.`
+        
+        const response = await aiService.analyzeImage(imageBase64, prompt)
+        const result = response.choices?.[0]?.message?.content || 'Unable to predict aging'
+        
+        setOverlayText(result)
+        setTimeout(() => setOverlayText(''), 10000)
       }
     } catch (error) {
       console.error('Style analysis error:', error)
@@ -177,6 +198,7 @@ const StyleLens = () => {
                 {mode === 'scan' && 'Adding to wardrobe...'}
                 {mode === 'tryOn' && 'Processing try-on...'}
                 {mode === 'outfit' && 'Creating outfit...'}
+                {mode === 'aging' && 'Predicting aging...'}
               </span>
             </div>
           </div>
@@ -199,6 +221,7 @@ const StyleLens = () => {
             {mode === 'scan' && 'Point at clothing to add to wardrobe'}
             {mode === 'tryOn' && 'Point at clothes to try them on'}
             {mode === 'outfit' && 'Point at an item for outfit suggestions'}
+            {mode === 'aging' && 'Point at clothing to predict how it will age'}
           </p>
         </div>
       </div>
