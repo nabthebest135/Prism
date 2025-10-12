@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Languages, MapPin, Scan } from 'lucide-react'
 import CameraView from '../components/CameraView'
 import { AIService } from '../services/aiService'
+import { useHistoryStore } from '../store/historyStore'
 
 type LensMode = 'translate' | 'discover' | 'scan'
 
@@ -13,6 +14,7 @@ const WorldLens = () => {
   const [isProcessing, setIsProcessing] = useState(false)
   const [targetLanguage, setTargetLanguage] = useState('en')
   const [showLanguageSelector, setShowLanguageSelector] = useState(false)
+  const { addAnalysis } = useHistoryStore()
   const aiService = new AIService()
 
   const languages = [
@@ -85,8 +87,16 @@ const WorldLens = () => {
       console.log('WorldLens - Extracted result:', result)
       setOverlayText(result)
       
-      // Clear overlay after 5 seconds
-      setTimeout(() => setOverlayText(''), 5000)
+      // Save to history
+      addAnalysis({
+        type: mode === 'translate' ? 'translation' : mode === 'discover' ? 'discovery' : 'scan',
+        result,
+        image: `data:image/jpeg;base64,${imageBase64}`,
+        mode: mode
+      })
+      
+      // Clear overlay after 15 seconds (longer display time)
+      setTimeout(() => setOverlayText(''), 15000)
     } catch (error) {
       console.error('WorldLens - AI analysis error details:', error)
       

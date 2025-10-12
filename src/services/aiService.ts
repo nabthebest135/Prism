@@ -54,10 +54,18 @@ export class AIService {
     }
   }
 
-  async analyzeImage(imageBase64: string, prompt: string) {
+  async analyzeImage(imageBase64: string, prompt: string, conversational: boolean = true) {
+    const systemPrompt = conversational ? 
+      'You are a friendly, enthusiastic fashion expert who talks like a best friend. Use casual language, emojis, and be encouraging. Give honest but kind advice.' :
+      'You are a professional fashion expert.'
+    
     return this.makeRequest('/chat/completions', {
       model: 'meta-llama/llama-4-maverick:free',
       messages: [
+        {
+          role: 'system',
+          content: systemPrompt
+        },
         {
           role: 'user',
           content: [
@@ -66,7 +74,7 @@ export class AIService {
           ]
         }
       ],
-      max_tokens: 500
+      max_tokens: 600
     })
   }
 
