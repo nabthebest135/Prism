@@ -36,8 +36,8 @@ const WorldLens = () => {
       setOverlayText('Testing API connection...')
       const connectionTest = await aiService.testConnection()
       if (!connectionTest) {
-        setOverlayText('X API connection failed. Check internet connection.')
-        setTimeout(() => setOverlayText(''), 5000)
+        setOverlayText('X API key not loaded or invalid. Environment variable issue.')
+        setTimeout(() => setOverlayText(''), 8000)
         return
       }
       setOverlayText('✓ API connected. Analyzing image...')

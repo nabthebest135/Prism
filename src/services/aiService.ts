@@ -6,6 +6,13 @@ export class AIService {
   async testConnection() {
     try {
       console.log('Testing API connection...')
+      console.log('API Key first 10 chars:', OPENROUTER_API_KEY.substring(0, 10))
+      console.log('API Key length:', OPENROUTER_API_KEY.length)
+      
+      if (OPENROUTER_API_KEY === 'your-openrouter-key') {
+        throw new Error('API key not loaded - using default placeholder')
+      }
+      
       const response = await this.makeRequest('/chat/completions', {
         model: 'google/gemini-flash-1.5',
         messages: [{ role: 'user', content: 'Hello, just testing connection' }],
