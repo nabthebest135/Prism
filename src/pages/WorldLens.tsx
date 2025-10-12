@@ -76,12 +76,20 @@ const WorldLens = () => {
           {modes.map(({ id, icon: Icon, label }) => (
             <button
               key={id}
-              onClick={() => setMode(id)}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-full transition-colors ${
+              onClick={() => {
+                console.log('Mode button clicked:', id)
+                setMode(id)
+              }}
+              onTouchStart={() => {
+                console.log('Mode button touched:', id)
+                setMode(id)
+              }}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-full transition-colors touch-manipulation ${
                 mode === id
                   ? 'bg-white text-primary'
                   : 'bg-black/30 text-white border border-white/30'
               }`}
+              style={{ touchAction: 'manipulation' }}
             >
               <Icon size={16} />
               <span className="text-sm font-medium">{label}</span>

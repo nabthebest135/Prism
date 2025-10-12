@@ -47,7 +47,9 @@ const CameraView = ({ onBack, onCapture, children, title }: CameraViewProps) => 
         ref={videoRef}
         className="absolute inset-0 w-full h-full object-cover"
         playsInline
+        webkit-playsinline="true"
         muted
+        autoPlay
       />
       
       {/* Hidden canvas for capture */}

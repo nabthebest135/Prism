@@ -10,25 +10,39 @@ export const useCamera = () => {
   const startCamera = async () => {
     try {
       setError(null)
-      const stream = await navigator.mediaDevices.getUserMedia({
+      console.log('Camera - Starting camera...')
+      
+      // iOS-friendly camera constraints
+      const constraints = {
         video: { 
           facingMode: 'environment',
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
+          width: { ideal: 640, max: 1280 },
+          height: { ideal: 480, max: 720 }
         },
         audio: false
-      })
+      }
+      
+      console.log('Camera - Requesting media with constraints:', constraints)
+      const stream = await navigator.mediaDevices.getUserMedia(constraints)
       
       streamRef.current = stream
+      console.log('Camera - Stream obtained:', stream)
       
       if (videoRef.current) {
         videoRef.current.srcObject = stream
+        console.log('Camera - Video source set')
+        
+        // iOS needs these attributes
+        videoRef.current.setAttribute('playsinline', 'true')
+        videoRef.current.setAttribute('webkit-playsinline', 'true')
+        
         await videoRef.current.play()
+        console.log('Camera - Video playing')
         setIsActive(true)
       }
     } catch (err) {
-      setError('Camera access denied or not available')
-      console.error('Camera error:', err)
+      console.error('Camera error details:', err)
+      setError(`Camera error: ${err.message || 'Unknown error'}`)
     }
   }
 
