@@ -1,4 +1,4 @@
-const OPENROUTER_API_KEY = (import.meta as any).env.VITE_OPENROUTER_API_KEY || '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'
+const OPENROUTER_API_KEY = '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'
 const OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1'
 
 export class AIService {
@@ -6,21 +6,10 @@ export class AIService {
   async testConnection() {
     try {
       console.log('Testing API connection...')
-      console.log('API Key first 10 chars:', OPENROUTER_API_KEY.substring(0, 10))
-      console.log('API Key length:', OPENROUTER_API_KEY.length)
-      
-      if (OPENROUTER_API_KEY === 'your-openrouter-key') {
-        throw new Error('API key not loaded - using default placeholder')
-      }
-      
-      if (!OPENROUTER_API_KEY || OPENROUTER_API_KEY.length < 10) {
-        throw new Error('API key is empty or too short')
-      }
-      
       const response = await this.makeRequest('/chat/completions', {
         model: 'meta-llama/llama-4-maverick:free',
-        messages: [{ role: 'user', content: 'Hello, just testing connection' }],
-        max_tokens: 10
+        messages: [{ role: 'user', content: 'Hello' }],
+        max_tokens: 5
       })
       console.log('API test successful:', response)
       return true
