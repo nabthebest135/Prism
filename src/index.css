@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@layer base {
+  * {
+    @apply border-gray-200;
+  }
+  
+  body {
+    @apply bg-white text-gray-900 font-sans;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  html, body, #root {
+    height: 100%;
+    overflow-x: hidden;
+  }
+}
+
+@layer components {
+  .camera-overlay {
+    @apply absolute inset-0 pointer-events-none;
+  }
+  
+  .ar-text-overlay {
+    @apply bg-black/70 text-white px-3 py-2 rounded-lg backdrop-blur-sm;
+  }
+  
+  .lens-button {
+    @apply w-16 h-16 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white;
+  }
+}
