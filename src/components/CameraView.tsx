@@ -1,5 +1,5 @@
 import { useEffect, ReactNode } from 'react'
-import { ArrowLeft, Zap, ZapOff } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { useCamera } from '../hooks/useCamera'
 
 interface CameraViewProps {

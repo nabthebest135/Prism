@@ -22,7 +22,7 @@ interface WardrobeState {
   updateItem: (id: string, updates: Partial<ClothingItem>) => Promise<void>
 }
 
-export const useWardrobeStore = create<WardrobeState>((set, get) => ({
+export const useWardrobeStore = create<WardrobeState>((set) => ({
   items: [],
   loading: false,
 

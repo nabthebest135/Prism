@@ -125,15 +125,11 @@ Select specific items from the wardrobe that match the temperature. Return JSON:
   }
 
   async compareOutfits(outfit1: string[], outfit2: string[], context: string): Promise<string> {
-    const prompt = `Compare these two outfit combinations for ${context}:
-
-Outfit 1: ${outfit1.join(', ')}
-Outfit 2: ${outfit2.join(', ')}
-
-Which is better and why? Keep response under 100 words.`
-
     try {
-      const response = await this.aiService.translateText(prompt, 'en') // Reusing translation endpoint
+      const response = await this.aiService.translateText(
+        `Compare these outfits for ${context}: ${outfit1.join(', ')} vs ${outfit2.join(', ')}`, 
+        'en'
+      )
       return response.choices?.[0]?.message?.content || 'Both outfits look great!'
     } catch (error) {
       return 'Both combinations have their merits. Choose what makes you feel confident!'

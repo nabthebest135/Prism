@@ -1,4 +1,4 @@
-const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY || 'your-openrouter-key'
+const OPENROUTER_API_KEY = (import.meta as any).env.VITE_OPENROUTER_API_KEY || 'your-openrouter-key'
 const OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1'
 
 export class AIService {

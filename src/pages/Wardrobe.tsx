@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Plus, Search, Filter } from 'lucide-react'
+import { Plus, Search } from 'lucide-react'
 import { useWardrobeStore, ClothingItem } from '../store/wardrobeStore'
 
 const Wardrobe = () => {

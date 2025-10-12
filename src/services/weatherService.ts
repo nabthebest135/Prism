@@ -1,5 +1,5 @@
-const WEATHERAPI_KEY = import.meta.env.VITE_WEATHERAPI_KEY || ''
-const WEATHER_API_KEY = import.meta.env.VITE_WEATHER_API_KEY || ''
+const WEATHERAPI_KEY = (import.meta as any).env.VITE_WEATHERAPI_KEY || ''
+const WEATHER_API_KEY = (import.meta as any).env.VITE_WEATHER_API_KEY || ''
 const WEATHERAPI_BASE_URL = 'https://api.weatherapi.com/v1'
 const OPENWEATHER_BASE_URL = 'https://api.openweathermap.org/data/2.5'
 const OPENMETEO_BASE_URL = 'https://api.open-meteo.com/v1'
@@ -22,8 +22,8 @@ export class WeatherService {
       // Get user location if not provided
       if (!lat || !lon) {
         const position = await this.getUserLocation()
-        lat = position.latitude
-        lon = position.longitude
+        lat = position.coords.latitude
+        lon = position.coords.longitude
       }
 
       // Try WeatherAPI first (your key - 1M calls/month)
@@ -69,7 +69,7 @@ export class WeatherService {
             temperature: Math.round(current.temperature),
             condition: this.getConditionFromCode(current.weathercode),
             description: this.getDescriptionFromCode(current.weathercode),
-            humidity: weatherData.hourly.relativehumidity_2m[0] || 50,
+            humidity: weatherData.hourly?.relativehumidity_2m?.[0] || 50,
             windSpeed: current.windspeed,
             icon: this.getIconFromCode(current.weathercode),
             location: locationName.city,

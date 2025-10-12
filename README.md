@@ -26,6 +26,17 @@ npm install
 npm run dev
 ```
 
+That's it! All API keys are built-in so users don't need to set up anything.
+
+## For Developers
+
+If you want to fork this project, you'll need your own API keys:
+- Weather: [weatherapi.com](https://weatherapi.com) - 1M calls/month free
+- AI: [openrouter.ai](https://openrouter.ai) - free tier available  
+- Database: [supabase.com](https://supabase.com) - generous free tier
+
+See `API_SETUP.md` for detailed setup instructions.
+
 
 
 ## Built with
