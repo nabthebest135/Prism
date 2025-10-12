@@ -18,7 +18,7 @@ export class AIService {
       }
       
       const response = await this.makeRequest('/chat/completions', {
-        model: 'google/gemini-flash-1.5',
+        model: 'meta-llama/llama-4-maverick:free',
         messages: [{ role: 'user', content: 'Hello, just testing connection' }],
         max_tokens: 10
       })
@@ -67,7 +67,7 @@ export class AIService {
 
   async analyzeImage(imageBase64: string, prompt: string) {
     return this.makeRequest('/chat/completions', {
-      model: 'google/gemini-flash-1.5',
+      model: 'meta-llama/llama-4-maverick:free',
       messages: [
         {
           role: 'user',
