@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Camera, MapPin, Shirt, ArrowRight } from 'lucide-react'
-import { useAuthStore } from '../store/authStore'
 
 interface OnboardingProps {
   onGetStarted?: () => void
@@ -8,12 +7,6 @@ interface OnboardingProps {
 
 const Onboarding = ({ onGetStarted }: OnboardingProps) => {
   const [step, setStep] = useState(0)
-  const [formData] = useState({
-    name: '',
-    email: '',
-    password: ''
-  })
-  const { signUp } = useAuthStore()
 
   const slides = [
     {
