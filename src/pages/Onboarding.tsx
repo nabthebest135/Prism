@@ -8,12 +8,12 @@ interface OnboardingProps {
 
 const Onboarding = ({ onGetStarted }: OnboardingProps) => {
   const [step, setStep] = useState(0)
-  const [formData, setFormData] = useState({
+  const [formData] = useState({
     name: '',
     email: '',
     password: ''
   })
-  const { signUp, loading } = useAuthStore()
+  const { signUp } = useAuthStore()
 
   const slides = [
     {
@@ -41,14 +41,7 @@ const Onboarding = ({ onGetStarted }: OnboardingProps) => {
     }
   }
 
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault()
-    try {
-      await signUp(formData.email, formData.password, formData.name)
-    } catch (error) {
-      console.error('Sign up error:', error)
-    }
-  }
+
 
   if (step < slides.length) {
     const slide = slides[step]

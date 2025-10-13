@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Camera, Shirt, MapPin, Sun, Calendar, Cloud, CloudRain, Star, MessageCircle } from 'lucide-react'
+import { Camera, Shirt, MapPin, Sun, Calendar, Cloud, CloudRain, Star } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
 import { useFeedbackStore } from '../store/feedbackStore'
 import { useEffect, useState } from 'react'

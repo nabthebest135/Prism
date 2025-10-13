@@ -37,7 +37,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       }
 
       // Listen for auth changes
-      supabase.auth.onAuthStateChange((event, session) => {
+      supabase.auth.onAuthStateChange((_, session) => {
         if (session?.user) {
           const userData = {
             id: session.user.id,
@@ -58,7 +58,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   signUp: async (email: string, password: string, name: string) => {
     set({ loading: true })
     try {
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -69,11 +69,8 @@ export const useAuthStore = create<AuthState>((set) => ({
       
       if (error) throw error
       
-      // For development: auto-confirm user
-      if (data.user && !data.user.email_confirmed_at) {
-        // User will be set via onAuthStateChange listener
-        console.log('User signed up successfully')
-      }
+      // User will be set via onAuthStateChange listener
+      console.log('User signed up successfully')
     } catch (error) {
       set({ loading: false })
       throw error
@@ -84,7 +81,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   signIn: async (email: string, password: string) => {
     set({ loading: true })
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password
       })

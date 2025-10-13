@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Clock, Trash2, Image as ImageIcon } from 'lucide-react'
+import { ArrowLeft, Clock, Trash2 } from 'lucide-react'
 import { useHistoryStore } from '../store/historyStore'
 
 const History = () => {
