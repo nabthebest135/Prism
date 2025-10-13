@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Shirt, Sparkles, Cloud, Clock } from 'lucide-react'
+import { Plus, Shirt, Sparkles, Clock } from 'lucide-react'
 import CameraView from '../components/CameraView'
 import WardrobeSetup from '../components/WardrobeSetup'
 import { AIService } from '../services/aiService'
@@ -94,9 +94,9 @@ const StyleLens = () => {
         }
         
         const wardrobeText = `Available items:\n` +
-          `Tops: ${userWardrobe.tops.map(item => `${item.color} ${item.name}`).join(', ')}\n` +
-          `Bottoms: ${userWardrobe.bottoms.map(item => `${item.color} ${item.name}`).join(', ')}\n` +
-          `Shoes: ${userWardrobe.shoes.map(item => `${item.color} ${item.name}`).join(', ')}`
+          `Tops: ${userWardrobe.tops.map((item: any) => `${item.color} ${item.name}`).join(', ')}\n` +
+          `Bottoms: ${userWardrobe.bottoms.map((item: any) => `${item.color} ${item.name}`).join(', ')}\n` +
+          `Shoes: ${userWardrobe.shoes.map((item: any) => `${item.color} ${item.name}`).join(', ')}`
         
         const weatherText = weather ? 
           `Current weather: ${weather.condition}, ${Math.round(weather.temp_c)}°C (${Math.round(weather.temp_f)}°F)` : 

@@ -25,8 +25,8 @@ const WardrobeSetup = ({ onComplete, onCancel }: WardrobeSetupProps) => {
     shoes: []
   })
   const [inputValue, setInputValue] = useState('')
-  const [selectedColor, setSelectedColor] = useState('black')
-  const [showColorPicker, setShowColorPicker] = useState(false)
+  const [selectedColor] = useState('black')
+  const [showColorPicker, setShowColorPicker] = useState<string | false>(false)
 
   const colors = [
     { name: 'Black', value: 'black', hex: '#000000' },
