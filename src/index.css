@@ -14,7 +14,7 @@
 html { overflow-x: hidden; width: 100%; }
 body {
   font-family: 'Arial', sans-serif;
-  background: linear-gradient(135deg, #0a0a0a 0%, #141c2c 100%);
+  background: linear-gradient(135deg, #000000 0%, #0a0a0a 100%);
   color: white;
   overflow-x: hidden;
   min-height: 100vh;
