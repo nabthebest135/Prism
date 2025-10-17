@@ -13,6 +13,7 @@ import Onboarding from './pages/Onboarding'
 import OutfitAnalysis from './pages/OutfitAnalysis'
 import SmartOutfitSuggestion from './pages/SmartOutfitSuggestion'
 import AuthModal from './components/AuthModal'
+import CustomCursor from './components/CustomCursor'
 import { useAuthStore } from './store/authStore'
 
 function App() {
@@ -34,22 +35,25 @@ function App() {
   }
 
   return (
-    <Router>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/world-lens" element={<WorldLens />} />
-          <Route path="/style-lens" element={<StyleLens />} />
-          <Route path="/wardrobe" element={<Wardrobe />} />
-          <Route path="/discoveries" element={<Discoveries />} />
-          <Route path="/history" element={<History />} />
-          <Route path="/testimonials" element={<Testimonials />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/outfit-analysis" element={<OutfitAnalysis />} />
-          <Route path="/smart-outfit" element={<SmartOutfitSuggestion />} />
-        </Routes>
-      </Layout>
-    </Router>
+    <>
+      <CustomCursor />
+      <Router>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/world-lens" element={<WorldLens />} />
+            <Route path="/style-lens" element={<StyleLens />} />
+            <Route path="/wardrobe" element={<Wardrobe />} />
+            <Route path="/discoveries" element={<Discoveries />} />
+            <Route path="/history" element={<History />} />
+            <Route path="/testimonials" element={<Testimonials />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/outfit-analysis" element={<OutfitAnalysis />} />
+            <Route path="/smart-outfit" element={<SmartOutfitSuggestion />} />
+          </Routes>
+        </Layout>
+      </Router>
+    </>
   )
 }
 
