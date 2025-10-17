@@ -14,6 +14,7 @@ import OutfitAnalysis from './pages/OutfitAnalysis'
 import SmartOutfitSuggestion from './pages/SmartOutfitSuggestion'
 import AuthModal from './components/AuthModal'
 import CustomCursor from './components/CustomCursor'
+import ParticleBackground from './components/ParticleBackground'
 import { useAuthStore } from './store/authStore'
 
 function App() {
@@ -36,6 +37,7 @@ function App() {
 
   return (
     <>
+      <ParticleBackground />
       <CustomCursor />
       <Router>
         <Layout>
