@@ -8,13 +8,11 @@ interface LayoutProps {
 
 const Layout = ({ children }: LayoutProps) => {
   const location = useLocation()
-  const isLensMode = location.pathname.includes('-lens')
+  const isLensMode = location.pathname.includes('-lens') || location.pathname === '/outfit-analysis'
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <main className={`flex-1 ${isLensMode ? '' : 'pb-20'}`}>
-        {children}
-      </main>
+      <main className={`flex-1 ${isLensMode ? '' : 'pb-20'}`}>{children}</main>
       {!isLensMode && <BottomNavigation />}
     </div>
   )

@@ -4,8 +4,9 @@ import { Plus, Search } from 'lucide-react'
 import { useWardrobeStore, ClothingItem } from '../store/wardrobeStore'
 
 const Wardrobe = () => {
-  const { items, loading, fetchItems } = useWardrobeStore()
+  const { items, loading, fetchItems, removeItem, updateItem } = useWardrobeStore()
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
+  const [error, setError] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
 
   const categories = [
@@ -13,17 +14,18 @@ const Wardrobe = () => {
     { id: 'tops', label: 'Tops' },
     { id: 'bottoms', label: 'Bottoms' },
     { id: 'shoes', label: 'Shoes' },
-    { id: 'accessories', label: 'Accessories' }
+    { id: 'accessories', label: 'Accessories' },
   ]
 
   useEffect(() => {
-    fetchItems()
+    fetchItems().catch((err) => setError(err.message))
   }, [fetchItems])
 
-  const filteredItems = items.filter(item => {
+  const filteredItems = items.filter((item) => {
     const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory
-    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         item.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+    const matchesSearch =
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
     return matchesCategory && matchesSearch
   })
 
@@ -51,7 +53,10 @@ const Wardrobe = () => {
 
         {/* Search */}
         <div className="relative mb-4">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+          <Search
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            size={20}
+          />
           <input
             type="text"
             placeholder="Search items..."
@@ -63,7 +68,7 @@ const Wardrobe = () => {
 
         {/* Category Filter */}
         <div className="flex space-x-2 overflow-x-auto pb-2">
-          {categories.map(category => (
+          {categories.map((category) => (
             <button
               key={category.id}
               onClick={() => setSelectedCategory(category.id)}
@@ -79,6 +84,11 @@ const Wardrobe = () => {
         </div>
       </div>
 
+      {error && (
+        <p role="alert" className="p-4 text-red-700">
+          {error}
+        </p>
+      )}
       {/* Items Grid */}
       <div className="p-4">
         {filteredItems.length === 0 ? (
@@ -88,10 +98,9 @@ const Wardrobe = () => {
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">No items found</h3>
             <p className="text-gray-600 mb-6">
-              {searchQuery || selectedCategory !== 'all' 
+              {searchQuery || selectedCategory !== 'all'
                 ? 'Try adjusting your search or filters'
-                : 'Start building your digital wardrobe'
-              }
+                : 'Start building your digital wardrobe'}
             </p>
             <Link
               to="/style-lens"
@@ -115,23 +124,55 @@ const Wardrobe = () => {
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute top-2 right-2">
-                    <div className={`w-3 h-3 rounded-full ${
-                      item.color === 'red' ? 'bg-red-500' :
-                      item.color === 'blue' ? 'bg-blue-500' :
-                      item.color === 'green' ? 'bg-green-500' :
-                      item.color === 'black' ? 'bg-black' :
-                      item.color === 'white' ? 'bg-white border border-gray-300' :
-                      'bg-gray-400'
-                    }`} />
+                    <div
+                      className={`w-3 h-3 rounded-full ${
+                        item.color === 'red'
+                          ? 'bg-red-500'
+                          : item.color === 'blue'
+                            ? 'bg-blue-500'
+                            : item.color === 'green'
+                              ? 'bg-green-500'
+                              : item.color === 'black'
+                                ? 'bg-black'
+                                : item.color === 'white'
+                                  ? 'bg-white border border-gray-300'
+                                  : 'bg-gray-400'
+                      }`}
+                    />
                   </div>
                 </div>
                 <div className="p-3">
-                  <h3 className="font-medium text-gray-900 text-sm mb-1 truncate">
-                    {item.name}
-                  </h3>
-                  <p className="text-xs text-gray-600 capitalize mb-2">
-                    {item.category}
-                  </p>
+                  <h3 className="font-medium text-gray-900 text-sm mb-1 truncate">{item.name}</h3>
+                  <p className="text-xs text-gray-600 capitalize mb-2">{item.category}</p>
+                  <div className="flex gap-3 text-xs mb-3">
+                    <button
+                      className="text-primary"
+                      onClick={async () => {
+                        const name = prompt('Item name', item.name)
+                        if (!name?.trim()) return
+                        try {
+                          await updateItem(item.id, { name: name.trim() })
+                        } catch (err) {
+                          setError((err as Error).message)
+                        }
+                      }}
+                    >
+                      Rename
+                    </button>
+                    <button
+                      className="text-red-600"
+                      onClick={async () => {
+                        if (!confirm('Remove ' + item.name + '?')) return
+                        try {
+                          await removeItem(item.id)
+                        } catch (err) {
+                          setError((err as Error).message)
+                        }
+                      }}
+                    >
+                      Remove
+                    </button>
+                  </div>
                   {item.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1">
                       {item.tags.slice(0, 2).map((tag, index) => (

@@ -1,27 +1,42 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Camera, Sparkles, TrendingUp } from 'lucide-react'
+import { useHistoryStore } from '../store/historyStore'
 import CameraView from '../components/CameraView'
 import { WardrobeAnalysisService, OutfitAnalysis } from '../services/wardrobeAnalysisService'
 import { useWardrobeStore } from '../store/wardrobeStore'
 
 const OutfitAnalysisPage = () => {
   const navigate = useNavigate()
-  const { items } = useWardrobeStore()
+  const { items, fetchItems } = useWardrobeStore()
+  useEffect(() => {
+    void fetchItems()
+  }, [fetchItems])
+  const [error, setError] = useState('')
   const [analysis, setAnalysis] = useState<OutfitAnalysis | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [showCamera, setShowCamera] = useState(true)
-  
+
   const analysisService = new WardrobeAnalysisService()
 
   const handleAnalyzeOutfit = async (imageBase64: string) => {
+    if (isAnalyzing) return
     setIsAnalyzing(true)
+    setError('')
     try {
       const result = await analysisService.analyzeCurrentOutfit(imageBase64, items)
       setAnalysis(result)
+      useHistoryStore
+        .getState()
+        .addAnalysis({
+          type: 'outfit',
+          result: result.recommendation + '\n' + result.reasoning,
+          image: 'data:image/jpeg;base64,' + imageBase64,
+          mode: 'outfit-analysis',
+        })
       setShowCamera(false)
     } catch (error) {
-      console.error('Analysis failed:', error)
+      setError((error as Error).message)
     } finally {
       setIsAnalyzing(false)
     }
@@ -39,6 +54,7 @@ const OutfitAnalysisPage = () => {
         title="Analyze Your Outfit"
         onBack={() => navigate('/')}
         onCapture={handleAnalyzeOutfit}
+        busy={isAnalyzing}
       >
         {/* Processing Indicator */}
         {isAnalyzing && (
@@ -52,6 +68,14 @@ const OutfitAnalysisPage = () => {
           </div>
         )}
 
+        {error && (
+          <p
+            role="alert"
+            className="absolute top-44 left-4 right-4 z-30 bg-white text-red-700 rounded-xl p-4"
+          >
+            {error}
+          </p>
+        )}
         {/* Instructions */}
         <div className="absolute bottom-32 left-4 right-4 z-10">
           <div className="text-center">
@@ -68,17 +92,11 @@ const OutfitAnalysisPage = () => {
     <div className="min-h-screen bg-gray-50 p-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-6 pt-8">
-        <button
-          onClick={() => navigate('/')}
-          className="text-gray-600 hover:text-gray-900"
-        >
+        <button onClick={() => navigate('/')} className="text-gray-600 hover:text-gray-900">
           ← Back
         </button>
         <h1 className="text-xl font-bold text-gray-900">Outfit Analysis</h1>
-        <button
-          onClick={() => setShowCamera(true)}
-          className="text-primary hover:text-primary/80"
-        >
+        <button onClick={() => setShowCamera(true)} className="text-primary hover:text-primary/80">
           <Camera size={24} />
         </button>
       </div>
@@ -97,7 +115,7 @@ const OutfitAnalysisPage = () => {
               </div>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
+              <div
                 className="bg-primary h-2 rounded-full transition-all duration-500"
                 style={{ width: `${analysis.styleRating * 10}%` }}
               />
@@ -111,7 +129,7 @@ const OutfitAnalysisPage = () => {
               <h2 className="text-lg font-semibold text-gray-900">Recommendation</h2>
             </div>
             <p className="text-gray-700 leading-relaxed mb-4">{analysis.recommendation}</p>
-            
+
             {analysis.reasoning && (
               <div className="bg-gray-50 rounded-lg p-4">
                 <h3 className="font-medium text-gray-900 mb-2">Why this works:</h3>
@@ -126,7 +144,10 @@ const OutfitAnalysisPage = () => {
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Suggested Items</h2>
               <div className="space-y-2">
                 {analysis.suggestedItems.map((item, index) => (
-                  <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                  <div
+                    key={index}
+                    className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg"
+                  >
                     <div className="w-2 h-2 bg-primary rounded-full" />
                     <span className="text-gray-700">{item}</span>
                   </div>
@@ -138,13 +159,13 @@ const OutfitAnalysisPage = () => {
           {/* Confidence Score */}
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between">
-              <span className="text-gray-600">Analysis Confidence</span>
+              <span className="text-gray-600">Model confidence (estimate)</span>
               <span className="font-semibold text-gray-900">
                 {Math.round(analysis.confidence * 100)}%
               </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-1 mt-2">
-              <div 
+              <div
                 className="bg-success h-1 rounded-full"
                 style={{ width: `${analysis.confidence * 100}%` }}
               />

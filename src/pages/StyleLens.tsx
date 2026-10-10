@@ -1,233 +1,134 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Shirt, Sparkles, Clock } from 'lucide-react'
 import CameraView from '../components/CameraView'
-import WardrobeSetup from '../components/WardrobeSetup'
-import { AIService } from '../services/aiService'
-import { WeatherService } from '../services/weatherService'
-import { useWardrobeStore } from '../store/wardrobeStore'
-
-type StyleMode = 'scan' | 'tryOn' | 'outfit' | 'aging'
-
+import AnalysisResult from '../components/AnalysisResult'
+import { AIService, parseAIJSON } from '../services/aiService'
+import { useWardrobeStore, ClothingItem } from '../store/wardrobeStore'
+import { useHistoryStore } from '../store/historyStore'
+type StyleMode = 'scan' | 'outfit' | 'care'
 const StyleLens = () => {
   const navigate = useNavigate()
-  const [mode, setMode] = useState<StyleMode>('scan')
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [overlayText, setOverlayText] = useState<string>('')
-  const [showWardrobeSetup, setShowWardrobeSetup] = useState(false)
-  const [userWardrobe, setUserWardrobe] = useState<any>(null)
-  const [weather, setWeather] = useState<any>(null)
-  const { addItem } = useWardrobeStore()
-  const aiService = new AIService()
-  const weatherService = new WeatherService()
-
-  useEffect(() => {
-    // Get weather data
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        try {
-          const weatherData = await weatherService.getCurrentWeather(
-            position.coords.latitude,
-            position.coords.longitude
-          )
-          setWeather(weatherData)
-        } catch (error) {
-          console.error('Weather fetch failed:', error)
-        }
-      },
-      (error) => console.error('Geolocation failed:', error)
-    )
-  }, [])
-
-  const modes = [
-    { id: 'scan' as StyleMode, icon: Plus, label: 'Add Item' },
-    { id: 'tryOn' as StyleMode, icon: Shirt, label: 'Try On' },
-    { id: 'outfit' as StyleMode, icon: Sparkles, label: 'Outfit' },
-    { id: 'aging' as StyleMode, icon: Clock, label: 'Aging' }
-  ]
-
-  const handleCapture = async (imageBase64: string) => {
-    setIsProcessing(true)
+  const [mode, setMode] = useState<StyleMode>('scan'),
+    [busy, setBusy] = useState(false),
+    [text, setText] = useState('')
+  const capture = async (image: string) => {
+    if (busy) return
+    setBusy(true)
+    setText('')
     try {
+      const ai = new AIService()
+      let result: string
       if (mode === 'scan') {
-        const prompt = `Analyze this clothing item and provide:
-        1. Item type (tops/bottoms/shoes/accessories)
-        2. Primary color
-        3. Brief description
-        4. Suggested tags (style, occasion, season)
-        
-        Format as JSON: {"type": "tops", "color": "blue", "description": "...", "tags": ["casual", "summer"]}`
-
-        const response = await aiService.analyzeImage(imageBase64, prompt)
-        const result = response.choices?.[0]?.message?.content || ''
-        
-        try {
-          const itemData = JSON.parse(result)
-          
-          // Create clothing item
-          const newItem = {
-            name: itemData.description || 'New Item',
-            category: itemData.type || 'tops',
-            color: itemData.color || 'unknown',
-            image_url: `data:image/jpeg;base64,${imageBase64}`,
-            tags: itemData.tags || []
-          }
-          
-          await addItem(newItem)
-          setOverlayText('Item added to wardrobe!')
-          
-          setTimeout(() => {
-            navigate('/wardrobe')
-          }, 2000)
-        } catch (parseError) {
-          setOverlayText('Item analyzed! Check your wardrobe.')
-          setTimeout(() => navigate('/wardrobe'), 2000)
-        }
-      } else if (mode === 'tryOn') {
-        setOverlayText('Virtual try-on coming soon!')
-        setTimeout(() => setOverlayText(''), 3000)
-      } else if (mode === 'outfit') {
-        if (!userWardrobe) {
-          setShowWardrobeSetup(true)
-          setIsProcessing(false)
-          return
-        }
-        
-        const wardrobeText = `Available items:\n` +
-          `Tops: ${userWardrobe.tops.map((item: any) => `${item.color} ${item.name}`).join(', ')}\n` +
-          `Bottoms: ${userWardrobe.bottoms.map((item: any) => `${item.color} ${item.name}`).join(', ')}\n` +
-          `Shoes: ${userWardrobe.shoes.map((item: any) => `${item.color} ${item.name}`).join(', ')}`
-        
-        const weatherText = weather ? 
-          `Current weather: ${weather.condition}, ${Math.round(weather.temp_c)}°C (${Math.round(weather.temp_f)}°F)` : 
-          'Weather data not available'
-        
-        const prompt = `You are a professional fashion stylist. Based on this image, current weather, and my wardrobe below, give me:\n\n` +
-          `${weatherText}\n\n` +
-          `${wardrobeText}\n\n` +
-          `1. A complete outfit recommendation using ONLY items from my wardrobe (consider the weather!)\n` +
-          `2. Your honest fashion opinion about the combination\n` +
-          `3. Color coordination advice\n` +
-          `4. Styling tips to make it look better\n` +
-          `5. What occasion this outfit would be perfect for\n` +
-          `6. Weather appropriateness rating (1-10)\n\n` +
-          `Be specific about colors and give me your professional opinion!`
-        
-        const response = await aiService.analyzeImage(imageBase64, prompt)
-        const result = response.choices?.[0]?.message?.content || 'No suggestions available'
-        
-        setOverlayText(result)
-        setTimeout(() => setOverlayText(''), 8000)
-      } else if (mode === 'aging') {
-        const prompt = `You are a fabric and fashion expert. Analyze this clothing/outfit and predict how it will look after 6 months of regular wear. Consider:\n\n` +
-          `1. Fabric type and quality visible in the image\n` +
-          `2. Color fading patterns (which colors fade fastest)\n` +
-          `3. Areas prone to stretching, pilling, or wear\n` +
-          `4. Seam stress points\n` +
-          `5. Care requirements and durability\n\n` +
-          `Provide a detailed prediction of:\n` +
-          `- How colors will change\n` +
-          `- Which areas will show wear first\n` +
-          `- Overall condition rating (1-10)\n` +
-          `- Tips to prevent aging\n` +
-          `- Expected lifespan\n\n` +
-          `Be specific and realistic about the aging process.`
-        
-        const response = await aiService.analyzeImage(imageBase64, prompt)
-        const result = response.choices?.[0]?.message?.content || 'Unable to predict aging'
-        
-        setOverlayText(result)
-        setTimeout(() => setOverlayText(''), 10000)
+        const response = await ai.analyzeImage(
+          image,
+          'Identify this clothing item. Return JSON only: {"type":"tops|bottoms|shoes|accessories","color":"primary color","description":"short item name","tags":["style","season"]}. If no clothing is visible, return {"error":"No clothing detected"}.',
+          false,
+          true
+        )
+        const item = parseAIJSON<{
+          type: ClothingItem['category']
+          color: string
+          description: string
+          tags: string[]
+          error?: string
+        }>(response.choices[0].message.content)
+        if (item.error) throw new Error(item.error)
+        if (
+          !['tops', 'bottoms', 'shoes', 'accessories'].includes(item.type) ||
+          typeof item.description !== 'string' ||
+          !item.description.trim() ||
+          typeof item.color !== 'string' ||
+          !Array.isArray(item.tags)
+        )
+          throw new Error('Could not identify a clothing item. Try a clearer photo.')
+        await useWardrobeStore
+          .getState()
+          .addItem({
+            name: item.description,
+            category: item.type,
+            color: item.color,
+            tags: item.tags.filter((t) => typeof t === 'string'),
+            image_url: 'data:image/jpeg;base64,' + image,
+          })
+        result = item.description + ' added to your wardrobe.'
+      } else {
+        await useWardrobeStore.getState().fetchItems()
+        const items = useWardrobeStore
+          .getState()
+          .items.map(({ name, category, color }) => ({ name, category, color }))
+        const prompt =
+          mode === 'outfit'
+            ? 'Give practical outfit feedback on the photo. Suggest combinations using ONLY these available wardrobe items: ' +
+              JSON.stringify(items) +
+              '. If the wardrobe is empty, give general advice and suggest adding items.'
+            : 'Give clothing care advice based on visible fabric and construction. Explain possible wear, fading, and care needs; acknowledge that exact fabric composition and lifespan cannot be determined from a photo.'
+        result = (await ai.analyzeImage(image, prompt)).choices[0].message.content
       }
+      setText(result)
+      useHistoryStore
+        .getState()
+        .addAnalysis({
+          type: mode === 'scan' ? 'scan' : mode === 'care' ? 'aging' : 'outfit',
+          result,
+          image: 'data:image/jpeg;base64,' + image,
+          mode,
+        })
     } catch (error) {
-      console.error('Style analysis error:', error)
-      setOverlayText('Analysis failed. Please try again.')
-      setTimeout(() => setOverlayText(''), 3000)
+      setText((error as Error).message)
     } finally {
-      setIsProcessing(false)
+      setBusy(false)
     }
   }
-
   return (
-    <>
-      {showWardrobeSetup && (
-        <WardrobeSetup
-          onComplete={(wardrobe) => {
-            setUserWardrobe(wardrobe)
-            setShowWardrobeSetup(false)
-          }}
-          onCancel={() => {
-            setShowWardrobeSetup(false)
-            setMode('scan')
-          }}
-        />
-      )}
-      
-      <CameraView
-        title="Style Lens"
-        onBack={() => navigate('/')}
-        onCapture={handleCapture}
-      >
-      {/* Mode Selector */}
-      <div className="absolute top-20 left-4 right-4 z-20">
-        <div className="flex justify-center space-x-2">
-          {modes.map(({ id, icon: Icon, label }) => (
-            <button
-              key={id}
-              onClick={() => setMode(id)}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-full transition-colors ${
-                mode === id
-                  ? 'bg-white text-accent'
-                  : 'bg-black/30 text-white border border-white/30'
-              }`}
-            >
-              <Icon size={16} />
-              <span className="text-sm font-medium">{label}</span>
-            </button>
-          ))}
-        </div>
+    <CameraView title="Style Lens" onBack={() => navigate('/')} onCapture={capture} busy={busy}>
+      <div className="absolute top-24 left-3 right-3 z-20 flex justify-center gap-2 flex-wrap">
+        {(
+          [
+            { id: 'scan', label: 'Add item' },
+            { id: 'outfit', label: 'Outfit' },
+            { id: 'care', label: 'Care' },
+          ] as { id: StyleMode; label: string }[]
+        ).map((m) => (
+          <button
+            key={m.id}
+            disabled={busy}
+            onClick={() => {
+              setMode(m.id)
+              setText('')
+            }}
+            className={
+              'mode-button ' + (mode === m.id ? 'mode-button-active' : 'mode-button-inactive')
+            }
+          >
+            {m.label}
+          </button>
+        ))}
+        <button
+          disabled={busy}
+          onClick={() => navigate('/try-on')}
+          className="mode-button mode-button-inactive"
+        >
+          Try on
+        </button>
       </div>
-
-      {/* Processing Indicator */}
-      {isProcessing && (
-        <div className="absolute inset-0 flex items-center justify-center z-30">
-          <div className="bg-black/70 text-white px-6 py-4 rounded-2xl backdrop-blur-sm">
-            <div className="flex items-center space-x-3">
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              <span>
-                {mode === 'scan' && 'Adding to wardrobe...'}
-                {mode === 'tryOn' && 'Processing try-on...'}
-                {mode === 'outfit' && 'Creating outfit...'}
-                {mode === 'aging' && 'Predicting aging...'}
-              </span>
-            </div>
-          </div>
+      {busy && (
+        <div
+          role="status"
+          className="absolute top-1/2 left-4 right-4 text-center text-white bg-black/70 p-4 rounded-xl z-30"
+        >
+          Analyzing your clothing…
         </div>
       )}
-
-      {/* AR Overlay Text */}
-      {overlayText && (
-        <div className="absolute bottom-32 left-4 right-4 z-20">
-          <div className="ar-text-overlay max-w-sm mx-auto">
-            <p className="text-sm leading-relaxed">{overlayText}</p>
-          </div>
-        </div>
-      )}
-
-      {/* Mode Instructions */}
-      <div className="absolute bottom-32 left-4 right-4 z-10">
-        <div className="text-center">
-          <p className="text-white text-sm bg-black/30 px-4 py-2 rounded-full backdrop-blur-sm inline-block">
-            {mode === 'scan' && 'Point at clothing to add to wardrobe'}
-            {mode === 'tryOn' && 'Point at clothes to try them on'}
-            {mode === 'outfit' && 'Point at an item for outfit suggestions'}
-            {mode === 'aging' && 'Point at clothing to predict how it will age'}
+      {text ? (
+        <AnalysisResult text={text} onClose={() => setText('')} />
+      ) : (
+        !busy && (
+          <p className="absolute bottom-36 left-4 right-4 text-center text-white">
+            Take or upload a clothing photo.
           </p>
-        </div>
-      </div>
-      </CameraView>
-    </>
+        )
+      )}
+    </CameraView>
   )
 }
-
 export default StyleLens

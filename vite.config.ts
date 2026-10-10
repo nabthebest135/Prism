@@ -7,11 +7,12 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      includeAssets: ['pwa-192x192.png', 'pwa-512x512.png'],
       manifest: {
         name: 'Prism - AR World Explorer',
         short_name: 'Prism',
-        description: 'Transform your camera into a powerful AR tool for translation, discovery, and style',
+        description:
+          'Transform your camera into a powerful AR tool for translation, discovery, and style',
         theme_color: '#6366F1',
         background_color: '#ffffff',
         display: 'standalone',
@@ -20,35 +21,23 @@ export default defineConfig({
           {
             src: 'pwa-192x192.png',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/png',
           },
           {
             src: 'pwa-512x512.png',
             sizes: '512x512',
-            type: 'image/png'
-          }
-        ]
+            type: 'image/png',
+          },
+        ],
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/api\./,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'api-cache',
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24
-              }
-            }
-          }
-        ]
-      }
-    })
+      },
+    }),
   ],
   server: {
-    host: true,
-    port: 3000
-  }
+    host: '127.0.0.1',
+    proxy: { '/api': 'http://127.0.0.1:3001' },
+    port: 3000,
+  },
 })

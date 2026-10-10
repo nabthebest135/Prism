@@ -12,18 +12,20 @@ const Onboarding = ({ onGetStarted }: OnboardingProps) => {
     {
       icon: Camera,
       title: 'Discover the World',
-      description: 'Point your camera at any text or landmark to instantly translate and learn fascinating stories'
+      description:
+        'Point your camera at any text or landmark to instantly translate and learn fascinating stories',
     },
     {
       icon: Shirt,
       title: 'Smart Wardrobe',
-      description: 'Digitize your clothes and get AI-powered outfit recommendations based on weather and occasions'
+      description:
+        'Digitize your clothes and get AI-powered outfit recommendations based on weather and occasions',
     },
     {
       icon: MapPin,
       title: 'Gamified Exploration',
-      description: 'Complete quests, earn achievements, and unlock hidden stories about places around you'
-    }
+      description: 'Save camera discoveries and earn milestones as you explore',
+    },
   ]
 
   const handleNext = () => {
@@ -33,8 +35,6 @@ const Onboarding = ({ onGetStarted }: OnboardingProps) => {
       setStep(slides.length)
     }
   }
-
-
 
   if (step < slides.length) {
     const slide = slides[step]
@@ -46,7 +46,7 @@ const Onboarding = ({ onGetStarted }: OnboardingProps) => {
           <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center mx-auto">
             <Icon size={48} />
           </div>
-          
+
           <div className="space-y-4">
             <h1 className="text-3xl font-bold">{slide.title}</h1>
             <p className="text-lg opacity-90 leading-relaxed">{slide.description}</p>

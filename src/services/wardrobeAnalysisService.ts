@@ -1,6 +1,6 @@
-import { AIService } from './aiService'
-import { ClothingItem } from '../store/wardrobeStore'
-
+import { AIService, parseAIJSON } from './aiService'
+import type { ClothingItem } from '../store/wardrobeStore'
+import type { WeatherData } from './weatherService'
 export interface OutfitAnalysis {
   recommendation: string
   reasoning: string
@@ -8,104 +8,54 @@ export interface OutfitAnalysis {
   suggestedItems: string[]
   styleRating: number
 }
-
+function validate(text: string, items: ClothingItem[]): OutfitAnalysis {
+  const value = parseAIJSON<OutfitAnalysis>(text)
+  if (
+    typeof value.recommendation !== 'string' ||
+    !value.recommendation.trim() ||
+    typeof value.reasoning !== 'string' ||
+    !Number.isFinite(value.confidence) ||
+    !Number.isFinite(value.styleRating) ||
+    !Array.isArray(value.suggestedItems)
+  )
+    throw new Error('The model returned incomplete styling advice. Please retry.')
+  return {
+    ...value,
+    confidence: Math.max(0, Math.min(1, value.confidence)),
+    styleRating: Math.max(1, Math.min(10, value.styleRating)),
+    suggestedItems: value.suggestedItems.filter((name) => items.some((item) => item.name === name)),
+  }
+}
 export class WardrobeAnalysisService {
-  private aiService = new AIService()
-
-  async analyzeCurrentOutfit(imageBase64: string, wardrobeItems: ClothingItem[]): Promise<OutfitAnalysis> {
-    const prompt = `Analyze this person's current outfit and provide styling advice.
-
-Available wardrobe items: ${JSON.stringify(wardrobeItems.map(item => ({
-  name: item.name,
-  category: item.category,
-  color: item.color,
-  tags: item.tags
-})))}
-
-Please analyze:
-1. What clothing items are currently being worn
-2. How well they work together (style rating 1-10)
-3. Suggest improvements using available wardrobe items
-4. Provide styling reasoning
-
-Return JSON format:
-{
-  "recommendation": "brief outfit advice",
-  "reasoning": "detailed explanation",
-  "confidence": 0.85,
-  "suggestedItems": ["item names from wardrobe"],
-  "styleRating": 7
-}`
-
-    try {
-      const response = await this.aiService.analyzeImage(imageBase64, prompt)
-      const result = response.choices?.[0]?.message?.content || '{}'
-      
-      try {
-        return JSON.parse(result)
-      } catch {
-        // Fallback if JSON parsing fails
-        return {
-          recommendation: result,
-          reasoning: "AI analysis completed",
-          confidence: 0.7,
-          suggestedItems: [],
-          styleRating: 7
-        }
-      }
-    } catch (error) {
-      console.error('Outfit analysis error:', error)
-      return {
-        recommendation: "Looking good! Try experimenting with different combinations.",
-        reasoning: "Analysis unavailable",
-        confidence: 0.5,
-        suggestedItems: [],
-        styleRating: 6
-      }
-    }
+  private ai = new AIService()
+  async analyzeCurrentOutfit(image: string, items: ClothingItem[]): Promise<OutfitAnalysis> {
+    const response = await this.ai.analyzeImage(
+      image,
+      'Analyze the visible outfit and give practical styling advice. Available wardrobe: ' +
+        JSON.stringify(items.map(({ name, color, category }) => ({ name, color, category }))) +
+        '. Return JSON only with recommendation (string), reasoning (string), confidence (0 to 1), suggestedItems (exact wardrobe names only), styleRating (1 to 10). Ratings are subjective styling opinions.',
+      false,
+      true
+    )
+    return validate(response.choices[0].message.content, items)
   }
-
   async suggestOutfitForOccasion(
-    wardrobeItems: ClothingItem[], 
-    occasion: string, 
-    weather?: any
+    items: ClothingItem[],
+    occasion: string,
+    weather?: WeatherData | null
   ): Promise<OutfitAnalysis> {
-    try {
-      const response = await this.aiService.generateOutfitRecommendation(wardrobeItems, weather, occasion)
-      const result = response.choices?.[0]?.message?.content || '{}'
-      
-      try {
-        return JSON.parse(result)
-      } catch {
-        return {
-          recommendation: result,
-          reasoning: "Perfect for the occasion",
-          confidence: 0.8,
-          suggestedItems: wardrobeItems.slice(0, 3).map(item => item.name),
-          styleRating: 8
-        }
-      }
-    } catch (error) {
-      console.error('Outfit suggestion error:', error)
-      return {
-        recommendation: "Mix and match your favorite pieces!",
-        reasoning: "Classic combinations work best",
-        confidence: 0.6,
-        suggestedItems: [],
-        styleRating: 7
-      }
-    }
+    if (!items.length) throw new Error('Add wardrobe items first.')
+    return validate(
+      (await this.ai.generateOutfitRecommendation(items, weather, occasion)).choices[0].message
+        .content,
+      items
+    )
   }
-
-  async compareOutfits(outfit1: string[], outfit2: string[], context: string): Promise<string> {
-    try {
-      const response = await this.aiService.translateText(
-        `Compare these outfits for ${context}: ${outfit1.join(', ')} vs ${outfit2.join(', ')}`, 
-        'en'
+  async compareOutfits(a: string[], b: string[], context: string): Promise<string> {
+    return (
+      await this.ai.chat(
+        'Compare these outfits for ' + context + ': ' + a.join(', ') + ' versus ' + b.join(', ')
       )
-      return response.choices?.[0]?.message?.content || 'Both outfits look great!'
-    } catch (error) {
-      return 'Both combinations have their merits. Choose what makes you feel confident!'
-    }
+    ).choices[0].message.content
   }
 }
