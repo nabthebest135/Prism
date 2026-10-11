@@ -42,14 +42,12 @@ const WorldLens = () => {
       const response = await new AIService().analyzeImage(image, prompt, false)
       const result = response.choices[0].message.content
       setText(result)
-      useHistoryStore
-        .getState()
-        .addAnalysis({
-          type: mode === 'translate' ? 'translation' : mode === 'discover' ? 'discovery' : 'scan',
-          result,
-          image: 'data:image/jpeg;base64,' + image,
-          mode,
-        })
+      useHistoryStore.getState().addAnalysis({
+        type: mode === 'translate' ? 'translation' : mode === 'discover' ? 'discovery' : 'scan',
+        result,
+        image: 'data:image/jpeg;base64,' + image,
+        mode,
+      })
     } catch (error) {
       setText((error as Error).message)
     } finally {

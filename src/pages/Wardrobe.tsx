@@ -115,7 +115,7 @@ const Wardrobe = () => {
             {filteredItems.map((item: ClothingItem) => (
               <div
                 key={item.id}
-                className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100"
+                className="bg-white rounded-lg overflow-hidden shadow-sm border border-gray-100"
               >
                 <div className="aspect-square bg-gray-100 relative">
                   <img

@@ -9,11 +9,10 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['pwa-192x192.png', 'pwa-512x512.png'],
       manifest: {
-        name: 'Prism - AR World Explorer',
+        name: 'Prism',
         short_name: 'Prism',
-        description:
-          'Transform your camera into a powerful AR tool for translation, discovery, and style',
-        theme_color: '#6366F1',
+        description: 'Photo translation, wardrobe records and virtual try-on.',
+        theme_color: '#292D28',
         background_color: '#ffffff',
         display: 'standalone',
         orientation: 'portrait',

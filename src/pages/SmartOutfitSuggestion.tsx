@@ -26,13 +26,11 @@ const SmartOutfitSuggestion = () => {
         weather
       )
       setSuggestion(result)
-      useHistoryStore
-        .getState()
-        .addAnalysis({
-          type: 'outfit',
-          result: result.recommendation + '\n' + result.reasoning,
-          mode: occasion,
-        })
+      useHistoryStore.getState().addAnalysis({
+        type: 'outfit',
+        result: result.recommendation + '\n' + result.reasoning,
+        mode: occasion,
+      })
     } catch (err) {
       setError((err as Error).message)
     } finally {

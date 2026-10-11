@@ -26,14 +26,12 @@ const OutfitAnalysisPage = () => {
     try {
       const result = await analysisService.analyzeCurrentOutfit(imageBase64, items)
       setAnalysis(result)
-      useHistoryStore
-        .getState()
-        .addAnalysis({
-          type: 'outfit',
-          result: result.recommendation + '\n' + result.reasoning,
-          image: 'data:image/jpeg;base64,' + imageBase64,
-          mode: 'outfit-analysis',
-        })
+      useHistoryStore.getState().addAnalysis({
+        type: 'outfit',
+        result: result.recommendation + '\n' + result.reasoning,
+        image: 'data:image/jpeg;base64,' + imageBase64,
+        mode: 'outfit-analysis',
+      })
       setShowCamera(false)
     } catch (error) {
       setError((error as Error).message)
@@ -59,7 +57,7 @@ const OutfitAnalysisPage = () => {
         {/* Processing Indicator */}
         {isAnalyzing && (
           <div className="absolute inset-0 flex items-center justify-center z-30">
-            <div className="bg-black/70 text-white px-6 py-4 rounded-2xl backdrop-blur-sm">
+            <div className="bg-black/70 text-white px-6 py-4 rounded-lg backdrop-blur-sm">
               <div className="flex items-center space-x-3">
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 <span>Analyzing your style...</span>
@@ -104,7 +102,7 @@ const OutfitAnalysisPage = () => {
       {analysis && (
         <div className="space-y-6">
           {/* Style Rating */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-900">Style Rating</h2>
               <div className="flex items-center space-x-2">
@@ -123,7 +121,7 @@ const OutfitAnalysisPage = () => {
           </div>
 
           {/* Recommendation */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
             <div className="flex items-center space-x-2 mb-3">
               <Sparkles className="text-accent" size={20} />
               <h2 className="text-lg font-semibold text-gray-900">Recommendation</h2>
@@ -140,7 +138,7 @@ const OutfitAnalysisPage = () => {
 
           {/* Suggested Items */}
           {analysis.suggestedItems.length > 0 && (
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Suggested Items</h2>
               <div className="space-y-2">
                 {analysis.suggestedItems.map((item, index) => (
@@ -157,7 +155,7 @@ const OutfitAnalysisPage = () => {
           )}
 
           {/* Confidence Score */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between">
               <span className="text-gray-600">Model confidence (estimate)</span>
               <span className="font-semibold text-gray-900">

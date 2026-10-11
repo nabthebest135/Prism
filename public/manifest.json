@@ -1,11 +1,11 @@
 {
-  "name": "Prism - AR World Explorer",
+  "name": "Prism",
   "short_name": "Prism",
-  "description": "Transform your camera into a powerful AR tool for translation, discovery, and style",
+  "description": "Photo translation, wardrobe records and virtual try-on.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#6366F1",
+  "theme_color": "#292D28",
   "orientation": "portrait-primary",
   "scope": "/",
   "icons": [

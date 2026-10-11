@@ -1,120 +1,92 @@
 import { Link } from 'react-router-dom'
-import { Camera, Shirt, CloudSun, Sparkles, MapPin } from 'lucide-react'
-import { useState } from 'react'
-import { useAuthStore } from '../store/authStore'
+import { ArrowUpRight, Camera, Shirt, Layers, ScanLine } from 'lucide-react'
 import { useHistoryStore } from '../store/historyStore'
-import { WeatherService, WeatherData } from '../services/weatherService'
-const Home = () => {
-  const { user } = useAuthStore(),
-    { analyses } = useHistoryStore()
-  const [weather, setWeather] = useState<WeatherData | null>(null),
-    [busy, setBusy] = useState(false),
-    [error, setError] = useState('')
-  const discovery = analyses.find((a) => a.type === 'discovery')
-  const actions = [
-    {
-      to: '/world-lens',
-      title: 'World Lens',
-      description: 'Translate text, explore places, and identify objects.',
-      icon: Camera,
-    },
-    {
-      to: '/style-lens',
-      title: 'Style Lens',
-      description: 'Scan clothes into your wardrobe and get styling advice.',
-      icon: Shirt,
-    },
-    {
-      to: '/smart-outfit',
-      title: 'Smart outfit',
-      description: 'Choose an outfit for your occasion and weather.',
-      icon: CloudSun,
-    },
-    {
-      to: '/try-on',
-      title: 'Virtual try-on',
-      description: 'Generate a preview of yourself wearing a garment.',
-      icon: Sparkles,
-    },
-  ]
+
+const tools = [
+  {
+    to: '/world-lens',
+    title: 'Read your surroundings',
+    detail: 'Translate a sign. Identify an object. Find out about a place.',
+    icon: Camera,
+    number: '01',
+  },
+  {
+    to: '/style-lens',
+    title: 'Work with your wardrobe',
+    detail: 'Photograph clothes, save them, and check care instructions.',
+    icon: Shirt,
+    number: '02',
+  },
+  {
+    to: '/smart-outfit',
+    title: 'Put an outfit together',
+    detail: 'Choose from your own clothes for the day or an occasion.',
+    icon: Layers,
+    number: '03',
+  },
+  {
+    to: '/try-on',
+    title: 'Try a garment on',
+    detail: 'Upload a photo and a garment to make a wearing preview.',
+    icon: ScanLine,
+    number: '04',
+  },
+]
+export default function Home() {
+  const { analyses } = useHistoryStore()
+  const recent = analyses[0]
   return (
-    <div className="max-w-3xl mx-auto p-6 space-y-7">
-      <header className="pt-8">
-        <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-2xl flex items-center justify-center font-bold text-xl mb-4">
-          P
-        </div>
-        <h1 className="text-3xl font-bold">Hey {user?.name || 'Explorer'}</h1>
-        <p className="text-gray-600 mt-2">What would you like to explore today?</p>
+    <div className="max-w-4xl mx-auto px-6 sm:px-10 py-8 sm:py-12">
+      <header className="flex items-center justify-between border-b border-stone-300 pb-5">
+        <h1 className="text-2xl font-semibold tracking-tight">
+          prism<span className="text-amber-700">.</span>
+        </h1>
+        <Link to="/wardrobe" className="text-sm underline underline-offset-4">
+          My wardrobe
+        </Link>
       </header>
-      <div className="grid sm:grid-cols-2 gap-4">
-        {actions.map(({ to, title, description, icon: Icon }) => (
-          <Link key={to} to={to} className="glass-card p-5 hover:shadow-2xl transition-shadow">
-            <Icon className="text-primary mb-4" size={28} />
-            <h2 className="font-bold text-lg">{title}</h2>
-            <p className="text-sm text-gray-600 mt-2">{description}</p>
-          </Link>
-        ))}
-      </div>
-      <section className="glass-card p-5 space-y-3">
-        <h2 className="font-bold">Weather for your outfit</h2>
-        {weather ? (
-          <>
-            <p>
-              {weather.temperature}°C · {weather.description}
-            </p>
-            <p className="text-gray-600">{new WeatherService().getOutfitRecommendation(weather)}</p>
-          </>
-        ) : (
-          <p className="text-gray-600">
-            Use your location for current weather, or choose an outfit by occasion.
-          </p>
-        )}
-        <button
-          disabled={busy}
-          className="text-primary font-medium"
-          onClick={async () => {
-            setBusy(true)
-            setError('')
-            try {
-              setWeather(await new WeatherService().getCurrentWeather())
-            } catch (err) {
-              setError((err as Error).message)
-            } finally {
-              setBusy(false)
-            }
-          }}
-        >
-          {busy ? 'Getting weather…' : 'Use current weather'}
-        </button>
-        {error && (
-          <p role="alert" className="text-sm text-gray-600">
-            {error}
-          </p>
-        )}
-      </section>
-      <section className="glass-card p-5 space-y-3">
-        <div className="flex justify-between">
-          <h2 className="font-bold flex gap-2">
-            <MapPin size={20} />
-            Recent discovery
-          </h2>
-          <Link to="/discoveries" className="text-primary text-sm">
-            View all
-          </Link>
-        </div>
-        <p className="text-gray-600">
-          {discovery
-            ? discovery.result.slice(0, 180) + (discovery.result.length > 180 ? '…' : '')
-            : 'Your discoveries will appear here after using World Lens.'}
+      <section className="py-10 sm:py-14 max-w-xl">
+        <p className="text-xs uppercase tracking-widest text-stone-500 mb-4">Camera & wardrobe</p>
+        <h2 className="text-4xl sm:text-5xl leading-tight font-normal editorial-title">
+          A little help with
+          <br />
+          what's in front of you.
+        </h2>
+        <p className="text-stone-600 mt-5 leading-relaxed">
+          Start with a photo. Read something, save a piece of clothing, or see how it might look on
+          you.
         </p>
       </section>
-      <Link to="/wardrobe" className="block glass-card p-5 text-primary font-bold">
-        Open my wardrobe →
-      </Link>
-      <p className="text-sm text-gray-500">
-        Photos are analyzed on Bladefall. Your wardrobe and history stay in this browser.
-      </p>
+      <section aria-label="Prism tools" className="border-t border-stone-300">
+        {tools.map(({ to, title, detail, icon: Icon, number }) => (
+          <Link
+            key={to}
+            to={to}
+            className="group flex items-center gap-4 sm:gap-6 py-6 border-b border-stone-300 hover:bg-stone-100 transition-colors"
+          >
+            <span className="text-xs text-stone-500 hidden sm:block">{number}</span>
+            <Icon size={22} strokeWidth={1.5} className="shrink-0 text-stone-600" />
+            <div className="flex-1">
+              <h3 className="text-lg font-medium">{title}</h3>
+              <p className="text-sm text-stone-600 mt-1">{detail}</p>
+            </div>
+            <ArrowUpRight size={20} strokeWidth={1.5} className="shrink-0" />
+          </Link>
+        ))}
+      </section>
+      <section className="mt-10 flex flex-wrap items-start justify-between gap-4">
+        <div className="max-w-lg">
+          <h2 className="text-xs uppercase tracking-widest text-stone-500 mb-3">Last saved</h2>
+          <p className="text-sm text-stone-600">
+            {recent
+              ? recent.result.slice(0, 160) + (recent.result.length > 160 ? '…' : '')
+              : 'No saved photos yet. Your results will appear here.'}
+          </p>
+        </div>
+        <Link to="/history" className="text-sm underline underline-offset-4">
+          View history
+        </Link>
+      </section>
     </div>
   )
 }
-export default Home

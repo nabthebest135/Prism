@@ -41,15 +41,13 @@ const StyleLens = () => {
           !Array.isArray(item.tags)
         )
           throw new Error('Could not identify a clothing item. Try a clearer photo.')
-        await useWardrobeStore
-          .getState()
-          .addItem({
-            name: item.description,
-            category: item.type,
-            color: item.color,
-            tags: item.tags.filter((t) => typeof t === 'string'),
-            image_url: 'data:image/jpeg;base64,' + image,
-          })
+        await useWardrobeStore.getState().addItem({
+          name: item.description,
+          category: item.type,
+          color: item.color,
+          tags: item.tags.filter((t) => typeof t === 'string'),
+          image_url: 'data:image/jpeg;base64,' + image,
+        })
         result = item.description + ' added to your wardrobe.'
       } else {
         await useWardrobeStore.getState().fetchItems()
@@ -65,14 +63,12 @@ const StyleLens = () => {
         result = (await ai.analyzeImage(image, prompt)).choices[0].message.content
       }
       setText(result)
-      useHistoryStore
-        .getState()
-        .addAnalysis({
-          type: mode === 'scan' ? 'scan' : mode === 'care' ? 'aging' : 'outfit',
-          result,
-          image: 'data:image/jpeg;base64,' + image,
-          mode,
-        })
+      useHistoryStore.getState().addAnalysis({
+        type: mode === 'scan' ? 'scan' : mode === 'care' ? 'aging' : 'outfit',
+        result,
+        image: 'data:image/jpeg;base64,' + image,
+        mode,
+      })
     } catch (error) {
       setText((error as Error).message)
     } finally {

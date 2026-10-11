@@ -41,9 +41,9 @@ const Testimonials = () => {
   const totalReviews = feedbacks.length
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-stone-50">
       {/* Header */}
-      <div className="glass-card rounded-none">
+      <div className="panel rounded-none">
         <div className="flex items-center justify-between p-4">
           <button onClick={() => navigate('/')} className="p-2 hover:bg-gray-100 rounded-full">
             <ArrowLeft size={24} />
@@ -51,7 +51,7 @@ const Testimonials = () => {
           <h1 className="text-xl font-bold text-gray-900">Local feedback</h1>
           <button
             onClick={() => setShowFeedbackModal(true)}
-            className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg text-sm font-medium"
+            className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium"
           >
             Write Review
           </button>
@@ -61,7 +61,7 @@ const Testimonials = () => {
       <div className="p-6 space-y-6">
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4">
-          <div className="glass-card p-4 text-center">
+          <div className="panel p-4 text-center">
             <div className="flex items-center justify-center mb-2">
               <Star className="text-yellow-400 fill-current" size={24} />
               <span className="text-2xl font-bold text-gray-900 ml-1">{averageRating}</span>
@@ -69,7 +69,7 @@ const Testimonials = () => {
             <p className="text-sm text-gray-600">Average Rating</p>
           </div>
 
-          <div className="glass-card p-4 text-center">
+          <div className="panel p-4 text-center">
             <div className="flex items-center justify-center mb-2">
               <Users className="text-blue-500" size={24} />
               <span className="text-2xl font-bold text-gray-900 ml-1">{totalReviews}</span>
@@ -77,7 +77,7 @@ const Testimonials = () => {
             <p className="text-sm text-gray-600">Total Reviews</p>
           </div>
 
-          <div className="glass-card p-4 text-center">
+          <div className="panel p-4 text-center">
             <div className="flex items-center justify-center mb-2">
               <TrendingUp className="text-green-500" size={24} />
               <span className="text-2xl font-bold text-gray-900 ml-1">
@@ -99,10 +99,10 @@ const Testimonials = () => {
           </div>
 
           {feedbacks.map((feedback) => (
-            <div key={feedback.id} className="glass-card p-4">
+            <div key={feedback.id} className="panel p-4">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center space-x-2">
-                  <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                  <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
                     <span className="text-white font-bold text-sm">
                       {feedback.userName ? feedback.userName.charAt(0) : '?'}
                     </span>
@@ -144,7 +144,7 @@ const Testimonials = () => {
         </div>
 
         {/* Call to Action */}
-        <div className="glass-card p-6 text-center">
+        <div className="panel p-6 text-center">
           <MessageCircle className="mx-auto text-blue-500 mb-3" size={32} />
           <h3 className="font-bold text-gray-900 mb-2">Love Prism? Share your experience!</h3>
           <p className="text-gray-600 mb-4 text-sm">
@@ -152,7 +152,7 @@ const Testimonials = () => {
           </p>
           <button
             onClick={() => setShowFeedbackModal(true)}
-            className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-lg font-medium hover:opacity-90"
+            className="w-full bg-primary text-white py-3 rounded-lg font-medium hover:opacity-90"
           >
             Write a Review ⭐
           </button>

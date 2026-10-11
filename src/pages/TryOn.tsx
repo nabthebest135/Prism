@@ -83,14 +83,12 @@ const TryOn = () => {
       if (typeof data.image !== 'string' || !data.image.startsWith('data:image/'))
         throw new Error('The model returned no preview.')
       setResult(data.image)
-      useHistoryStore
-        .getState()
-        .addAnalysis({
-          type: 'outfit',
-          result: 'Generated virtual try-on preview with CatVTON.',
-          image: data.image,
-          mode: 'try-on',
-        })
+      useHistoryStore.getState().addAnalysis({
+        type: 'outfit',
+        result: 'Generated virtual try-on preview with CatVTON.',
+        image: data.image,
+        mode: 'try-on',
+      })
     } catch (err) {
       setError((err as Error).message)
     } finally {
