@@ -1,276 +1,92 @@
 import { Link } from 'react-router-dom'
-import { Camera, Shirt, MapPin, Sun, Calendar, Cloud, CloudRain, Star } from 'lucide-react'
-import { useAuthStore } from '../store/authStore'
-import { useFeedbackStore } from '../store/feedbackStore'
-import { useEffect, useState } from 'react'
-import { WeatherService, WeatherData } from '../services/weatherService'
-import { CalendarService, CalendarEvent } from '../services/calendarService'
+import { ArrowUpRight, Camera, Shirt, Layers, ScanLine } from 'lucide-react'
+import { useHistoryStore } from '../store/historyStore'
 
-const Home = () => {
-  const { user } = useAuthStore()
-  const { feedbacks, getAverageRating } = useFeedbackStore()
-  const [weather, setWeather] = useState<WeatherData | null>(null)
-  const [todaysEvents, setTodaysEvents] = useState<CalendarEvent[]>([])
-  const [loading, setLoading] = useState(true)
-  
-  const weatherService = new WeatherService()
-  const calendarService = new CalendarService()
-
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [weatherData, events] = await Promise.all([
-          weatherService.getCurrentWeather(),
-          calendarService.getTodaysEvents()
-        ])
-        setWeather(weatherData)
-        setTodaysEvents(events)
-      } catch (error) {
-        console.error('Error loading home data:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-    
-    loadData()
-  }, [])
-
+const tools = [
+  {
+    to: '/world-lens',
+    title: 'Read your surroundings',
+    detail: 'Translate a sign. Identify an object. Find out about a place.',
+    icon: Camera,
+    number: '01',
+  },
+  {
+    to: '/style-lens',
+    title: 'Work with your wardrobe',
+    detail: 'Photograph clothes, save them, and check care instructions.',
+    icon: Shirt,
+    number: '02',
+  },
+  {
+    to: '/smart-outfit',
+    title: 'Put an outfit together',
+    detail: 'Choose from your own clothes for the day or an occasion.',
+    icon: Layers,
+    number: '03',
+  },
+  {
+    to: '/try-on',
+    title: 'Try a garment on',
+    detail: 'Upload a photo and a garment to make a wearing preview.',
+    icon: ScanLine,
+    number: '04',
+  },
+]
+export default function Home() {
+  const { analyses } = useHistoryStore()
+  const recent = analyses[0]
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      <div className="p-6 space-y-8">
-        {/* Header */}
-        <div className="pt-12">
-          <div className="flex items-center space-x-3 mb-2">
-            <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
-              <span className="text-white font-bold text-lg">P</span>
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Hey {user?.name || 'there'}! 👋
-              </h1>
-              <p className="text-gray-600">What would you like to explore today?</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Weather Widget */}
-        <div className="glass-card p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="flex items-center space-x-2 mb-2">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <p className="text-sm text-gray-600 font-medium">Live Weather</p>
-              </div>
-              {loading ? (
-                <div className="flex items-center space-x-2">
-                  <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-                  <span className="text-gray-500">Loading...</span>
-                </div>
-              ) : (
-                <>
-                  <p className="text-3xl font-bold text-gray-900 mb-1">{weather?.temperature}°C</p>
-                  <p className="text-gray-600 capitalize">{weather?.description}</p>
-                </>
-              )}
-            </div>
-            <div className="text-blue-500">
-              {weather?.condition === 'Clear' && <Sun size={56} />}
-              {weather?.condition === 'Clouds' && <Cloud size={56} />}
-              {weather?.condition === 'Rain' && <CloudRain size={56} />}
-              {!weather && <Sun size={56} />}
-            </div>
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="space-y-6">
-          <h2 className="text-xl font-bold text-gray-900">Explore with AI 🤖</h2>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <Link
-              to="/world-lens"
-              className="glass-card p-6 active:scale-95 transition-all duration-200 hover:shadow-2xl group"
-            >
-              <div className="flex flex-col items-center text-center space-y-4">
-                <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <Camera className="text-white" size={28} />
-                </div>
-                <div>
-                  <h3 className="font-bold text-gray-900 mb-1">World Lens</h3>
-                  <p className="text-sm text-gray-600">Translate & Discover</p>
-                  <div className="mt-2 px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">
-                    12 languages
-                  </div>
-                </div>
-              </div>
-            </Link>
-
-            <Link
-              to="/style-lens"
-              className="glass-card p-6 active:scale-95 transition-all duration-200 hover:shadow-2xl group"
-            >
-              <div className="flex flex-col items-center text-center space-y-4">
-                <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <Shirt className="text-white" size={28} />
-                </div>
-                <div>
-                  <h3 className="font-bold text-gray-900 mb-1">Style Lens</h3>
-                  <p className="text-sm text-gray-600">Fashion & Outfits</p>
-                  <div className="mt-2 px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full">
-                    AI Stylist
-                  </div>
-                </div>
-              </div>
-            </Link>
-          </div>
-        </div>
-
-      {/* Today's Outfit Suggestion */}
-      <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-gray-900">Today's Outfit</h3>
-          <Calendar size={20} className="text-gray-400" />
-        </div>
-        <div className="flex items-center space-x-3">
-          <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
-            <Shirt className="text-gray-400" size={24} />
-          </div>
-          <div className="flex-1">
-            {loading ? (
-              <div className="space-y-2">
-                <div className="w-24 h-4 bg-gray-200 rounded animate-pulse" />
-                <div className="w-32 h-3 bg-gray-200 rounded animate-pulse" />
-              </div>
-            ) : (
-              <>
-                <p className="font-medium text-gray-900">
-                  {todaysEvents.length > 0 ? 'Event Ready' : 'Weather Perfect'}
-                </p>
-                <p className="text-sm text-gray-600">
-                  {weather ? weatherService.getOutfitRecommendation(weather) : 'Comfortable casual wear'}
-                </p>
-                {todaysEvents.length > 0 && (
-                  <p className="text-xs text-primary mt-1">
-                    {todaysEvents[0].title} at {todaysEvents[0].start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                  </p>
-                )}
-              </>
-            )}
-          </div>
-          <Link
-            to="/smart-outfit"
-            className="text-primary font-medium text-sm"
-          >
-            Smart Pick
-          </Link>
-        </div>
-      </div>
-
-      {/* Outfit Analysis Quick Action */}
-      <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-gray-900">Outfit Check</h3>
-          <Camera size={20} className="text-gray-400" />
-        </div>
-        <p className="text-sm text-gray-600 mb-4">Get AI-powered styling advice on your current outfit</p>
-        <Link
-          to="/outfit-analysis"
-          className="w-full bg-accent text-white py-3 rounded-xl font-medium text-center block"
-        >
-          Analyze My Outfit
+    <div className="max-w-4xl mx-auto px-6 sm:px-10 py-8 sm:py-12">
+      <header className="flex items-center justify-between border-b border-stone-300 pb-5">
+        <h1 className="text-2xl font-semibold tracking-tight">
+          prism<span className="text-amber-700">.</span>
+        </h1>
+        <Link to="/wardrobe" className="text-sm underline underline-offset-4">
+          My wardrobe
         </Link>
-      </div>
-
-      {/* Recent Discoveries */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-gray-900">Recent Discoveries</h3>
-          <Link to="/discoveries" className="text-primary font-medium text-sm">
-            View All
-          </Link>
-        </div>
-        
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-          <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-success/10 rounded-lg flex items-center justify-center">
-              <MapPin className="text-success" size={20} />
-            </div>
+      </header>
+      <section className="py-10 sm:py-14 max-w-xl">
+        <p className="text-xs uppercase tracking-widest text-stone-500 mb-4">Camera & wardrobe</p>
+        <h2 className="text-4xl sm:text-5xl leading-tight font-normal editorial-title">
+          A little help with
+          <br />
+          what's in front of you.
+        </h2>
+        <p className="text-stone-600 mt-5 leading-relaxed">
+          Start with a photo. Read something, save a piece of clothing, or see how it might look on
+          you.
+        </p>
+      </section>
+      <section aria-label="Prism tools" className="border-t border-stone-300">
+        {tools.map(({ to, title, detail, icon: Icon, number }) => (
+          <Link
+            key={to}
+            to={to}
+            className="group flex items-center gap-4 sm:gap-6 py-6 border-b border-stone-300 hover:bg-stone-100 transition-colors"
+          >
+            <span className="text-xs text-stone-500 hidden sm:block">{number}</span>
+            <Icon size={22} strokeWidth={1.5} className="shrink-0 text-stone-600" />
             <div className="flex-1">
-              <p className="font-medium text-gray-900">Historic Building</p>
-              <p className="text-sm text-gray-600">Discovered 2 hours ago</p>
+              <h3 className="text-lg font-medium">{title}</h3>
+              <p className="text-sm text-stone-600 mt-1">{detail}</p>
             </div>
-          </div>
+            <ArrowUpRight size={20} strokeWidth={1.5} className="shrink-0" />
+          </Link>
+        ))}
+      </section>
+      <section className="mt-10 flex flex-wrap items-start justify-between gap-4">
+        <div className="max-w-lg">
+          <h2 className="text-xs uppercase tracking-widest text-stone-500 mb-3">Last saved</h2>
+          <p className="text-sm text-stone-600">
+            {recent
+              ? recent.result.slice(0, 160) + (recent.result.length > 160 ? '…' : '')
+              : 'No saved photos yet. Your results will appear here.'}
+          </p>
         </div>
-
-        {/* User Testimonials */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-900">What users love ❤️</h2>
-            <Link to="/testimonials" className="text-blue-600 font-medium text-sm">
-              View All
-            </Link>
-          </div>
-          
-          <div className="glass-card p-4">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-2">
-                <Star className="text-yellow-400 fill-current" size={20} />
-                <span className="font-bold text-gray-900">{getAverageRating()}</span>
-                <span className="text-gray-600 text-sm">({feedbacks.length} reviews)</span>
-              </div>
-              <div className="flex items-center space-x-1">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Star
-                    key={star}
-                    size={16}
-                    className={star <= Math.round(getAverageRating()) ? 'text-yellow-400 fill-current' : 'text-gray-300'}
-                  />
-                ))}
-              </div>
-            </div>
-            
-            {feedbacks.slice(0, 2).map((feedback) => (
-              <div key={feedback.id} className="mb-4 last:mb-0">
-                <div className="flex items-center space-x-2 mb-2">
-                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                    <span className="text-white font-bold text-xs">
-                      {feedback.userName ? feedback.userName.charAt(0) : '?'}
-                    </span>
-                  </div>
-                  <span className="font-medium text-gray-900 text-sm">
-                    {feedback.userName || 'Anonymous'}
-                  </span>
-                  <div className="flex">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star
-                        key={star}
-                        size={12}
-                        className={star <= feedback.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}
-                      />
-                    ))}
-                  </div>
-                </div>
-                <p className="text-gray-700 text-sm leading-relaxed">
-                  {feedback.message.length > 120 
-                    ? `${feedback.message.substring(0, 120)}...` 
-                    : feedback.message
-                  }
-                </p>
-              </div>
-            ))}
-            
-            <Link
-              to="/testimonials"
-              className="w-full mt-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-lg font-medium text-center block text-sm"
-            >
-              Read More Reviews 📝
-            </Link>
-          </div>
-        </div>
-      </div>
-      </div>
+        <Link to="/history" className="text-sm underline underline-offset-4">
+          View history
+        </Link>
+      </section>
     </div>
   )
 }
-
-export default Home

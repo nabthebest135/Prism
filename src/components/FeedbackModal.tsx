@@ -13,28 +13,28 @@ const FeedbackModal = ({ isOpen, onClose }: FeedbackModalProps) => {
   const [feature, setFeature] = useState('')
   const [userName, setUserName] = useState('')
   const [submitted, setSubmitted] = useState(false)
-  
+
   const { addFeedback } = useFeedbackStore()
 
   const features = [
     'World Lens',
-    'Style Lens', 
+    'Style Lens',
     'Aging Predictor',
     'AI Stylist',
     'Translation',
-    'Overall App'
+    'Overall App',
   ]
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (rating === 0 || !message.trim()) return
 
     addFeedback({
       rating,
       message: message.trim(),
       feature: feature || 'Overall App',
-      userName: userName.trim() || undefined
+      userName: userName.trim() || undefined,
     })
 
     setSubmitted(true)
@@ -52,7 +52,7 @@ const FeedbackModal = ({ isOpen, onClose }: FeedbackModalProps) => {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="glass-card p-6 w-full max-w-md">
+      <div className="panel p-6 w-full max-w-md">
         {submitted ? (
           <div className="text-center py-8">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -86,7 +86,9 @@ const FeedbackModal = ({ isOpen, onClose }: FeedbackModalProps) => {
                     >
                       <Star
                         size={24}
-                        className={star <= rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}
+                        className={
+                          star <= rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
+                        }
                       />
                     </button>
                   ))}
@@ -104,8 +106,10 @@ const FeedbackModal = ({ isOpen, onClose }: FeedbackModalProps) => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Select a feature</option>
-                  {features.map(f => (
-                    <option key={f} value={f}>{f}</option>
+                  {features.map((f) => (
+                    <option key={f} value={f}>
+                      {f}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -141,7 +145,7 @@ const FeedbackModal = ({ isOpen, onClose }: FeedbackModalProps) => {
               <button
                 type="submit"
                 disabled={rating === 0 || !message.trim()}
-                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-lg font-medium hover:opacity-90 disabled:opacity-50 flex items-center justify-center space-x-2"
+                className="w-full bg-primary text-white py-3 rounded-lg font-medium hover:opacity-90 disabled:opacity-50 flex items-center justify-center space-x-2"
               >
                 <Send size={20} />
                 <span>Submit Feedback</span>

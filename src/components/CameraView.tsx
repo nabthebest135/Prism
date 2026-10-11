@@ -1,107 +1,92 @@
-import { useEffect, ReactNode } from 'react'
-import { ArrowLeft } from 'lucide-react'
+import { useEffect, useState, ReactNode } from 'react'
+import { ArrowLeft, Upload, Camera } from 'lucide-react'
 import { useCamera } from '../hooks/useCamera'
-
+import { readPhoto } from '../lib/images'
 interface CameraViewProps {
   onBack: () => void
-  onCapture?: (imageBase64: string) => void
+  onCapture?: (image: string) => void
   children?: ReactNode
   title?: string
+  busy?: boolean
 }
-
-const CameraView = ({ onBack, onCapture, children, title }: CameraViewProps) => {
-  const { videoRef, canvasRef, isActive, error, startCamera, stopCamera, captureImageAsBase64 } = useCamera()
-
+const CameraView = ({ onBack, onCapture, children, title, busy = false }: CameraViewProps) => {
+  const { videoRef, canvasRef, isActive, error, startCamera, stopCamera, captureImageAsBase64 } =
+    useCamera()
+  const [uploadError, setUploadError] = useState('')
   useEffect(() => {
-    startCamera()
-    return () => stopCamera()
-  }, [])
-
-  const handleCapture = () => {
-    const imageBase64 = captureImageAsBase64()
-    if (imageBase64 && onCapture) {
-      onCapture(imageBase64)
-    }
-  }
-
-  if (error) {
-    return (
-      <div className="fixed inset-0 bg-black text-white">
-        <div className="flex items-center justify-center h-full">
-          <div className="text-center p-6">
-            <p className="text-lg mb-4">{error}</p>
-            <button 
-              onClick={onBack}
-              className="bg-primary px-6 py-2 rounded-lg"
-            >
-              Go Back
-            </button>
-          </div>
-        </div>
-        {/* Show children even on error for testing */}
-        <div className="camera-overlay">
-          {children}
-        </div>
-      </div>
-    )
-  }
-
+    void startCamera()
+    return stopCamera
+  }, [startCamera, stopCamera])
   return (
     <div className="fixed inset-0 bg-black">
-      {/* Camera Feed */}
       <video
         ref={videoRef}
         className="absolute inset-0 w-full h-full object-cover"
         playsInline
-        webkit-playsinline="true"
         muted
         autoPlay
       />
-      
-      {/* Hidden canvas for capture */}
       <canvas ref={canvasRef} className="hidden" />
-      
-      {/* Header */}
-      <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between p-4 bg-gradient-to-b from-black/50 to-transparent">
-        <button
-          onClick={onBack}
-          onTouchStart={onBack}
-          className="lens-button touch-manipulation"
-          style={{ touchAction: 'manipulation' }}
-        >
+      <div className="absolute top-0 left-0 right-0 z-40 flex items-center justify-between p-4 bg-gradient-to-b from-black/70 to-transparent">
+        <button aria-label="Go back" onClick={onBack} className="lens-button">
           <ArrowLeft size={24} />
         </button>
-        
-        {title && (
-          <h1 className="text-white font-semibold text-lg">{title}</h1>
-        )}
-        
+        <h1 className="text-white font-semibold text-lg">{title}</h1>
         <div className="w-16" />
       </div>
-
-      {/* AR Overlays */}
-      <div className="camera-overlay">
-        {children}
-      </div>
-
-      {/* Bottom Controls */}
-      <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/50 to-transparent">
-        <div className="flex items-center justify-center">
-          {onCapture && (
-            <button
-              onClick={handleCapture}
-              onTouchStart={handleCapture}
-              disabled={!isActive}
-              className="w-20 h-20 rounded-full bg-white border-4 border-white/30 flex items-center justify-center disabled:opacity-50 touch-manipulation"
-              style={{ touchAction: 'manipulation' }}
-            >
-              <div className="w-16 h-16 rounded-full bg-white" />
-            </button>
-          )}
+      {(error || uploadError) && (
+        <div
+          role="alert"
+          className="absolute top-44 left-4 right-4 z-20 bg-white rounded-xl p-4 text-sm"
+        >
+          {uploadError || error}
+          <button onClick={() => void startCamera()} className="block mt-2 text-primary">
+            Retry camera
+          </button>
         </div>
+      )}
+      <div className="camera-overlay">{children}</div>
+      <div className="absolute bottom-0 left-0 right-0 z-40 p-5 bg-gradient-to-t from-black/80 to-transparent flex justify-center items-center gap-8">
+        <label
+          className={
+            'text-white text-center ' + (busy ? 'opacity-40 pointer-events-none' : 'cursor-pointer')
+          }
+        >
+          <Upload className="mx-auto mb-1" />
+          Upload photo
+          <input
+            aria-label="Upload photo"
+            type="file"
+            accept="image/*"
+            className="hidden"
+            disabled={busy}
+            onChange={async (e) => {
+              const file = e.target.files?.[0]
+              e.target.value = ''
+              if (!file) return
+              try {
+                setUploadError('')
+                const data = await readPhoto(file)
+                onCapture?.(data.split(',')[1])
+              } catch (err) {
+                setUploadError((err as Error).message)
+              }
+            }}
+          />
+        </label>
+        <button
+          aria-label="Capture photo"
+          onClick={() => {
+            const image = captureImageAsBase64()
+            if (image) onCapture?.(image)
+          }}
+          disabled={!isActive || busy}
+          className="w-20 h-20 rounded-full bg-white border-4 border-white/30 flex items-center justify-center disabled:opacity-40"
+        >
+          <Camera size={30} />
+        </button>
       </div>
     </div>
   )
 }
-
 export default CameraView

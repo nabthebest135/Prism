@@ -12,6 +12,7 @@ import Testimonials from './pages/Testimonials'
 import Onboarding from './pages/Onboarding'
 import OutfitAnalysis from './pages/OutfitAnalysis'
 import SmartOutfitSuggestion from './pages/SmartOutfitSuggestion'
+import TryOn from './pages/TryOn'
 import AuthModal from './components/AuthModal'
 import { useAuthStore } from './store/authStore'
 
@@ -22,6 +23,13 @@ function App() {
   useEffect(() => {
     initialize()
   }, [initialize])
+
+  if (user === undefined)
+    return (
+      <div role="status" className="p-8 text-center">
+        Loading Prism…
+      </div>
+    )
 
   // Show auth modal if no user
   if (user === null) {
@@ -46,6 +54,7 @@ function App() {
           <Route path="/testimonials" element={<Testimonials />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/outfit-analysis" element={<OutfitAnalysis />} />
+          <Route path="/try-on" element={<TryOn />} />
           <Route path="/smart-outfit" element={<SmartOutfitSuggestion />} />
         </Routes>
       </Layout>

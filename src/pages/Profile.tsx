@@ -1,127 +1,139 @@
-import { Settings, Award, BarChart3, LogOut, User, Camera } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
-
+import { useHistoryStore } from '../store/historyStore'
+import { useWardrobeStore } from '../store/wardrobeStore'
 const Profile = () => {
-  const { user, signOut } = useAuthStore()
-
-  const stats = [
-    { label: 'Discoveries', value: '23', icon: Camera },
-    { label: 'Outfits Created', value: '45', icon: User },
-    { label: 'Achievements', value: '12', icon: Award }
-  ]
-
-  const achievements = [
-    { id: 1, title: 'First Discovery', description: 'Made your first discovery', earned: true },
-    { id: 2, title: 'Style Explorer', description: 'Added 10 items to wardrobe', earned: true },
-    { id: 3, title: 'World Traveler', description: 'Discovered 5 different locations', earned: false },
-    { id: 4, title: 'Fashion Forward', description: 'Created 20 outfits', earned: false }
-  ]
-
+  const { user, setName, signOut } = useAuthStore(),
+    { analyses } = useHistoryStore(),
+    { items, fetchItems } = useWardrobeStore()
+  const [name, setDraft] = useState(user?.name || ''),
+    [status, setStatus] = useState<{
+      ai: boolean
+      tryon: { ready: boolean; busy?: boolean }
+    } | null>(null),
+    [message, setMessage] = useState('')
+  const check = async () => {
+    try {
+      const r = await fetch('/api/health')
+      if (!r.ok) throw new Error()
+      setStatus(await r.json())
+    } catch {
+      setMessage('Cannot reach the local server.')
+    }
+  }
+  useEffect(() => {
+    void fetchItems()
+    void check()
+  }, [fetchItems])
+  const discoveries = analyses.filter((a) => a.type === 'discovery').length,
+    outfits = analyses.filter((a) => a.type === 'outfit').length
+  const milestones = [
+    ['First discovery', discoveries >= 1],
+    ['10 wardrobe items', items.length >= 10],
+    ['5 discoveries', discoveries >= 5],
+    ['20 outfit analyses', outfits >= 20],
+  ] as const
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-primary to-accent px-4 py-8 text-white">
-        <div className="flex items-center space-x-4">
-          <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center">
-            <User size={32} />
-          </div>
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold">{user?.name || 'User'}</h1>
-            <p className="opacity-90">{user?.email}</p>
-            <p className="text-sm opacity-75 mt-1">Explorer since today</p>
-          </div>
+    <div className="max-w-2xl mx-auto p-5 space-y-5">
+      <h1 className="text-2xl font-bold">Your profile</h1>
+      <p className="text-gray-600">
+        Your wardrobe, photos, and history are saved in this browser. Analysis runs on your
+        Bladefall PC.
+      </p>
+      <div className="grid grid-cols-3 gap-3 text-center bg-white rounded-xl p-4">
+        <div>
+          <strong>{discoveries}</strong>
+          <p>Discoveries</p>
+        </div>
+        <div>
+          <strong>{outfits}</strong>
+          <p>Outfits</p>
+        </div>
+        <div>
+          <strong>{items.length}</strong>
+          <p>Items</p>
         </div>
       </div>
-
-      {/* Stats */}
-      <div className="px-4 -mt-6 mb-6">
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-          <div className="grid grid-cols-3 gap-4">
-            {stats.map((stat, index) => {
-              const Icon = stat.icon
-              return (
-                <div key={index} className="text-center">
-                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-2">
-                    <Icon className="text-primary" size={20} />
-                  </div>
-                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                  <p className="text-sm text-gray-600">{stat.label}</p>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Achievements */}
-      <div className="px-4 mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Achievements</h2>
-        <div className="space-y-3">
-          {achievements.map((achievement) => (
-            <div
-              key={achievement.id}
-              className={`bg-white rounded-2xl p-4 shadow-sm border border-gray-100 ${
-                achievement.earned ? '' : 'opacity-60'
-              }`}
-            >
-              <div className="flex items-center space-x-3">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                  achievement.earned ? 'bg-success/10' : 'bg-gray-100'
-                }`}>
-                  <Award className={achievement.earned ? 'text-success' : 'text-gray-400'} size={20} />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-medium text-gray-900">{achievement.title}</h3>
-                  <p className="text-sm text-gray-600">{achievement.description}</p>
-                </div>
-                {achievement.earned && (
-                  <div className="w-6 h-6 bg-success rounded-full flex items-center justify-center">
-                    <div className="w-2 h-2 bg-white rounded-full" />
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Menu Items */}
-      <div className="px-4 space-y-2">
-        <button className="w-full bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center space-x-3 text-left">
-          <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-            <Settings className="text-gray-600" size={20} />
-          </div>
-          <div className="flex-1">
-            <h3 className="font-medium text-gray-900">Settings</h3>
-            <p className="text-sm text-gray-600">App preferences and privacy</p>
-          </div>
-        </button>
-
-        <button className="w-full bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center space-x-3 text-left">
-          <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-            <BarChart3 className="text-gray-600" size={20} />
-          </div>
-          <div className="flex-1">
-            <h3 className="font-medium text-gray-900">Analytics</h3>
-            <p className="text-sm text-gray-600">Your exploration insights</p>
-          </div>
-        </button>
-
-        <button 
-          onClick={signOut}
-          className="w-full bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center space-x-3 text-left"
-        >
-          <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-            <LogOut className="text-red-600" size={20} />
-          </div>
-          <div className="flex-1">
-            <h3 className="font-medium text-red-600">Sign Out</h3>
-            <p className="text-sm text-gray-600">Log out of your account</p>
-          </div>
+      <form
+        className="bg-white p-4 rounded-xl space-y-3"
+        onSubmit={(e) => {
+          e.preventDefault()
+          setName(name)
+          setMessage('Name saved.')
+        }}
+      >
+        <label className="block">
+          Name
+          <input
+            aria-label="Profile name"
+            maxLength={60}
+            value={name}
+            onChange={(e) => setDraft(e.target.value)}
+            className="block border p-3 rounded-xl w-full mt-2"
+          />
+        </label>
+        <button className="text-primary">Save name</button>
+      </form>
+      <div className="bg-white p-4 rounded-xl space-y-2">
+        <h2 className="font-bold">Local services</h2>
+        <p>Image analysis: {status ? (status.ai ? 'Ready' : 'Unavailable') : 'Checking…'}</p>
+        <p>
+          Virtual try-on:{' '}
+          {status
+            ? status.tryon.ready
+              ? status.tryon.busy
+                ? 'Busy'
+                : 'Ready'
+              : 'Unavailable'
+            : 'Checking…'}
+        </p>
+        <button onClick={() => void check()} className="text-primary">
+          Check connection
         </button>
       </div>
+      <div className="bg-white p-4 rounded-xl space-y-2">
+        <h2 className="font-bold">Milestones</h2>
+        {milestones.map(([title, earned]) => (
+          <p key={title}>
+            {earned ? '✓' : '○'} {title}
+          </p>
+        ))}
+      </div>
+      <button
+        className="text-primary"
+        onClick={() => {
+          const blob = new Blob(
+            [
+              JSON.stringify(
+                { version: 1, profile: user?.name, wardrobe: items, history: analyses },
+                null,
+                2
+              ),
+            ],
+            { type: 'application/json' }
+          )
+          const url = URL.createObjectURL(blob)
+          const a = document.createElement('a')
+          a.href = url
+          a.download = 'prism-backup.json'
+          a.click()
+          setTimeout(() => URL.revokeObjectURL(url), 1000)
+        }}
+      >
+        Export wardrobe and history
+      </button>
+      <Link to="/testimonials" className="block text-primary">
+        Local feedback
+      </Link>
+      <Link to="/history" className="block text-primary">
+        View analysis history
+      </Link>
+      <button onClick={() => void signOut()} className="block text-gray-600">
+        Leave profile
+      </button>
+      {message && <p role="status">{message}</p>}
     </div>
   )
 }
-
 export default Profile
